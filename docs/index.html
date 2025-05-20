@@ -9,6 +9,7 @@
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 2rem; background: #f8f9fa; }
         h1 { text-align: center; }
+        .diagnostic { max-width: 600px; margin: 0 auto; padding: 1rem; color: #444; background: #ffe; border: 1px solid #ffa; border-radius: 6px; }
         .file-list { max-width: 600px; margin: 2rem auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 1.5rem; }
         .file-item { display: flex; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
         .file-item:last-child { border-bottom: none; }
@@ -22,22 +23,30 @@
 </head>
 <body>
     <h1>AI Reports</h1>
+    <div class="diagnostic">
+        <b>Diagnóstico:</b> Esta página debe estar disponible en:<br>
+        <code>https://gustavoemc.github.io/ai-reports/</code><br>
+        y cada archivo, por ejemplo:<br>
+        <code>https://gustavoemc.github.io/ai-reports/reports/GeoAI_Python_InfoGraphic_v1.0.html</code><br>
+        Si el archivo existe en el repo (<code>docs/reports/GeoAI_Python_InfoGraphic_v1.0.html</code>) y el enlace sigue fallando, espera 2 minutos o abre en modo incógnito.<br>
+        Si NO ves el archivo en <a href="https://github.com/gustavoemc/ai-reports/tree/main/docs/reports" target="_blank">docs/reports del repo</a>, hay un error de git push.
+    </div>
     <main class="file-list">
         <div class="file-item">
-                <span class="file-icon"><i class="fa-solid fa-file-code"></i></span>
-                <a class="file-link" href="reports/GeoAI_Python_InfoGraphic_v1.0.html" target="_blank" rel="noopener noreferrer">GeoAI_Python_InfoGraphic_v1.0.html</a>
+            <span class="file-icon"><i class="fa-solid fa-file-code"></i></span>
+            <a class="file-link" href="reports/GeoAI_Python_InfoGraphic_v1.0.html" target="_blank" rel="noopener noreferrer">GeoAI_Python_InfoGraphic_v1.0.html</a>
         </div>
         <div class="file-item">
-                <span class="file-icon"><i class="fa-solid fa-file-code"></i></span>
-                <a class="file-link" href="reports/GeoAI_Python_Resources_v1.0.html" target="_blank" rel="noopener noreferrer">GeoAI_Python_Resources_v1.0.html</a>
+            <span class="file-icon"><i class="fa-solid fa-file-code"></i></span>
+            <a class="file-link" href="reports/GeoAI_Python_Resources_v1.0.html" target="_blank" rel="noopener noreferrer">GeoAI_Python_Resources_v1.0.html</a>
         </div>
         <div class="file-item">
-                <span class="file-icon"><i class="fa-solid fa-file-lines"></i></span>
-                <a class="file-link" href="reports/GeoAI_Python_Resources_v1.0.md" target="_blank" rel="noopener noreferrer">GeoAI_Python_Resources_v1.0.md</a>
+            <span class="file-icon"><i class="fa-solid fa-file-lines"></i></span>
+            <a class="file-link" href="reports/GeoAI_Python_Resources_v1.0.md" target="_blank" rel="noopener noreferrer">GeoAI_Python_Resources_v1.0.md</a>
         </div>
         <div class="file-item">
-                <span class="file-icon"><i class="fa-solid fa-file-audio"></i></span>
-                <a class="file-link" href="reports/GeoAI_Python_Resources_v1.0.mp3" target="_blank" rel="noopener noreferrer">GeoAI_Python_Resources_v1.0.mp3</a>
+            <span class="file-icon"><i class="fa-solid fa-file-audio"></i></span>
+            <a class="file-link" href="reports/GeoAI_Python_Resources_v1.0.mp3" target="_blank" rel="noopener noreferrer">GeoAI_Python_Resources_v1.0.mp3</a>
         </div>
     </main>
 </body>
