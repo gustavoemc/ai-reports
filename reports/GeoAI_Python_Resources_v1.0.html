@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive GeoAI Resources Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+        
+        .nav-link {
+            display: block;
+            padding: 0.75rem 1.25rem; 
+            border-radius: 0.375rem;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            font-weight: 500; 
+            color: #334155; /* slate-700 */
+        }
+        .nav-link:hover {
+            background-color: #e0f2fe; /* sky-100 */
+            color: #0369a1; /* sky-700 */
+            transform: translateX(2px);
+        }
+        .nav-link.active {
+            background-color: #0ea5e9; /* sky-500 */
+            color: white;
+            font-weight: 600; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .table-header th {
+            background-color: #f1f5f9; /* slate-100 */
+            color: #475569; /* slate-600 */
+            font-weight: 600; 
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+        .expandable-content {
+            display: none;
+            background-color: #f8fafc; /* slate-50 */
+            border-left: 4px solid #0ea5e9; /* sky-500 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; 
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px; 
+            max-height: 400px;
+        }
+        @media (min-width: 768px) { 
+            .chart-container {
+                height: 380px; 
+            }
+        }
+        .methodology-step {
+            border: 1px solid #e2e8f0; /* slate-200 */
+            border-radius: 0.5rem; 
+            padding: 1.25rem; 
+            margin-bottom: 1rem;
+            background-color: #ffffff;
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.07), 0 1px 2px 0 rgba(0,0,0,0.03);
+        }
+        .methodology-step h3 { 
+            color: #0369a1; /* sky-700 */
+        }
+        .accent-text { color: #0ea5e9; /* sky-500 */ }
+        .sub-nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            color: #475569; /* slate-600 */
+            border: 1px solid #cbd5e1; /* slate-300 */
+            background-color: #ffffff;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+        .sub-nav-link:hover {
+            background-color: #f1f5f9; /* slate-100 */
+            border-color: #94a3b8; /* slate-400 */
+        }
+        .sub-nav-link.active {
+            background-color: #bae6fd; /* sky-200 */
+            color: #0c4a6e; /* sky-800 */
+            font-weight: 600;
+            border-color: #0ea5e9; /* sky-500 */
+        }
+        .details-icon::before {
+            content: '▶';
+            display: inline-block;
+            /* margin-right: 0.5rem; /* Removed margin, handled by details-toggle-btn padding */
+            transition: transform 0.2s ease-in-out;
+            font-size: 0.8em;
+            line-height: 1; /* Ensure consistent vertical alignment */
+            color: #0ea5e9; /* sky-500 */
+        }
+        .expanded .details-icon::before {
+            transform: rotate(90deg);
+        }
+        .details-toggle-btn {
+            display: inline-flex; /* To allow padding and centering of icon */
+            align-items: center;
+            justify-content: center;
+            padding: 0.3rem; /* Clickable area around icon */
+            margin-right: 0.25rem; /* Space between icon and text */
+            border-radius: 0.25rem;
+            transition: background-color 0.2s ease;
+        }
+        .details-toggle-btn:hover {
+            background-color: #e0f2fe; /* sky-100, subtle hover */
+        }
+        .search-input {
+            border: 1px solid #cbd5e1; /* slate-300 */
+            padding: 0.625rem 0.875rem; 
+            border-radius: 0.375rem;
+            width: 100%;
+            box-shadow: inset 0 1px 2px 0 rgba(0,0,0,0.05);
+        }
+        .search-input:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            border-color: #0ea5e9; /* sky-500 */
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2); 
+        }
+        .data-row:hover td:not(.expandable-content td) { 
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .data-row td:first-child { /* Ensure first cell content aligns nicely */
+            display: flex;
+            align-items: center;
+        }
+        .expandable-trigger {
+            color: #0369a1; /* sky-700 */
+            font-weight: 500;
+        }
+        .expandable-trigger:hover {
+            color: #0284c7; /* sky-600 */
+            text-decoration: underline;
+        }
+        .inline-link {
+            color: #0369a1; /* sky-700 */
+            text-decoration: underline;
+            text-decoration-color: #7dd3fc; /* sky-300 */
+            text-underline-offset: 2px;
+            transition: color 0.2s ease, text-decoration-color 0.2s ease;
+        }
+        .inline-link:hover {
+            color: #0ea5e9; /* sky-500 */
+            text-decoration-color: #0ea5e9; /* sky-500 */
+        }
+        .reference-list li {
+            margin-bottom: 0.75rem; 
+            padding-left: 0.5rem;
+        }
+         .reference-list li::marker {
+            color: #0ea5e9; /* sky-500 */
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-700">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <aside class="w-full md:w-72 bg-slate-100 p-5 space-y-3 shadow-xl md:sticky md:top-0 md:h-screen md:overflow-y-auto">
+            <h1 class="text-3xl font-bold text-sky-700 mb-8 text-center tracking-tight">GeoAI Explorer</h1>
+            <nav>
+                <a href="#" class="nav-link active" data-target="intro">📝 Introduction</a>
+                <a href="#" class="nav-link" data-target="libraries">📚 Python Libraries</a>
+                <a href="#" class="nav-link" data-target="methodologies">🛠️ Methodologies</a>
+                <a href="#" class="nav-link" data-target="platforms">☁️ Data Platforms</a>
+                <a href="#" class="nav-link" data-target="synthesis">💡 Synthesis</a>
+                <a href="#" class="nav-link" data-target="conclusion">🏁 Conclusion</a>
+                <a href="#" class="nav-link" data-target="references">🌐 References</a>
+            </nav>
+            <div class="pt-6 mt-6 border-t border-slate-300 text-xs text-slate-500 text-center">
+                <p>Interactive Report SPA</p>
+                <p>&copy; 2025 GeoAI Insights</p>
+                <p>GeoAI Python Resources v1.0</p>
+                <p>Deep Research | Gemini 2.5 Pro | May 2025</p>
+                <p>by <a href="https://www.linkedin.com/in/gustavoernestom/" target="_blank" style="color: #0077B5; text-decoration: none;">Gustavo Ernesto Martínez Cárdenas</a></p>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-6 md:p-10 lg:p-12 overflow-y-auto">
+            <section id="intro" class="content-section active bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-semibold mb-6 text-sky-700 border-b-2 border-sky-200 pb-3">Empowering the GeoAI Assistant</h2>
+                
+                <div class="space-y-5 text-slate-700 leading-relaxed">
+                    <h3 class="text-xl font-medium text-sky-600">Purpose and Scope</h3>
+                    <p>This interactive application details essential <a href="https://www.python.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Python</a> libraries, methodologies, and open data platforms critical for developing an advanced GeoAI assistant. The focus is on automating geospatial workflows, encompassing data acquisition, preprocessing, analysis, and the integration of <a href="https://en.wikipedia.org/wiki/Machine_learning" target="_blank" rel="noopener noreferrer" class="inline-link">Machine Learning (ML)</a> and <a href="https://en.wikipedia.org/wiki/Artificial_intelligence" target="_blank" rel="noopener noreferrer" class="inline-link">Artificial Intelligence (AI)</a> models. The analysis emphasizes resources that facilitate the handling of both vector and raster geodata, particularly data derived from remote sensing, for direct application in AI-driven tasks.</p>
+                    
+                    <h3 class="text-xl font-medium text-sky-600">The Need for Automation in GeoAI</h3>
+                    <p>The volume and complexity of geospatial data are increasing at an unprecedented rate. Effectively harnessing this data deluge requires sophisticated analytical tools and, crucially, automation. Automation in GeoAI is key to unlocking the value of geospatial data efficiently, enabling timely insights for applications ranging from environmental monitoring and disaster response to urban planning and precision agriculture. This explorer aims to simplify understanding of the technical underpinnings for such a system.</p>
+                
+                    <h3 class="text-xl font-medium text-sky-600">Structure of this Explorer</h3>
+                    <p>This application is organized into several key sections, accessible via the navigation panel:
+                        <ul class="list-disc list-inside ml-4 mt-2 space-y-1 text-slate-600">
+                            <li><strong>Python Libraries:</strong> Overview of essential packages for vector, raster, ML/GeoAI integration, and remote sensing data access.</li>
+                            <li><strong>Methodologies & Workflows:</strong> Key approaches in GeoAI amenable to automation.</li>
+                            <li><strong>Open Data Platforms:</strong> Relevant open access geodata sites and platforms for AI/ML.</li>
+                            <li><strong>Synthesis & Recommendations:</strong> Strategic advice and example workflow scenarios.</li>
+                            <li><strong>Conclusion:</strong> Summary of key findings and the potential of these resources.</li>
+                            <li><strong>References:</strong> A list of key cited tools, platforms, and specifications.</li>
+                        </ul>
+                    </p>
+                    <p class="mt-6 italic text-sm text-slate-500">Navigate using the links on the left to explore each section of the report.</p>
+                </div>
+            </section>
+
+            <section id="libraries" class="content-section bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-semibold mb-6 text-sky-700 border-b-2 border-sky-200 pb-3">Essential Python Libraries for GeoAI</h2>
+                <p class="mb-6 text-slate-700 leading-relaxed"><a href="https://www.python.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Python</a> has emerged as the de facto language for geospatial analysis and data science. This section provides an overview of essential Python libraries categorized by their primary function. Use the filters below to explore specific categories.</p>
+
+                <div class="mb-6 flex flex-wrap gap-3" id="librariesSubNav">
+                    <button class="sub-nav-link active" data-filter="all">All Libraries</button>
+                    <button class="sub-nav-link" data-filter="vector">Vector Data</button>
+                    <button class="sub-nav-link" data-filter="raster">Raster Data</button>
+                    <button class="sub-nav-link" data-filter="ml-geoai">ML/GeoAI</button>
+                    <button class="sub-nav-link" data-filter="remote-sensing">Remote Sensing</button>
+                </div>
+                
+                <input type="text" id="librarySearch" class="search-input mb-6" placeholder="Search libraries by name or functionality...">
+
+                <div class="overflow-x-auto bg-white rounded-lg border border-slate-200">
+                    <table class="min-w-full divide-y divide-slate-200" id="librariesTable">
+                        <thead class="table-header">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Library Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Category</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Core Functionality</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-slate-200">
+                        </tbody>
+                    </table>
+                </div>
+                 <div class="mt-8">
+                    <h3 class="text-xl font-medium text-sky-600 mb-3">Library Categories Overview</h3>
+                    <p class="text-slate-700 mb-4 leading-relaxed">The chart below shows the distribution of key <a href="https://www.python.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Python</a> libraries across different GeoAI task categories discussed in the report. This provides a visual summary of the tool landscape.</p>
+                    <div class="chart-container bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                        <canvas id="librariesChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="methodologies" class="content-section bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-semibold mb-6 text-sky-700 border-b-2 border-sky-200 pb-3">Key Methodologies and Workflow Patterns</h2>
+                <p class="mb-8 text-slate-700 leading-relaxed">A typical GeoAI workflow involves several stages, from data acquisition to actionable insights. This section outlines key methodologies and workflow patterns that are particularly amenable to automation using <a href="https://www.python.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Python</a> and the libraries discussed. Click on a methodology to learn more.</p>
+
+                <div class="grid md:grid-cols-2 gap-x-6 gap-y-8">
+                    <div class="methodology-step">
+                        <h3 class="text-xl font-medium text-sky-600 mb-2">A. Automated Data Acquisition & Preprocessing</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">Efficiently gathering and preparing vast amounts of geospatial data. This involves using APIs (especially <a href="https://stacspec.org/" target="_blank" rel="noopener noreferrer" class="inline-link">STAC</a>) for data discovery and scripting common preprocessing tasks like radiometric correction, cloud masking, mosaicking, and tiling.</p>
+                        <button class="mt-3 text-sm expandable-trigger">Show Details &raquo;</button>
+                        <div class="expandable-content p-4 mt-3 text-sm text-slate-600 leading-relaxed">
+                            <p><strong>Data Acquisition via APIs:</strong> Utilizing <a href="https://pystac-client.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">`pystac-client`</a>, <a href="https://sentinelsat.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">`sentinelsat`</a>, <a href="https://developers.google.com/earth-engine/guides/python_install" target="_blank" rel="noopener noreferrer" class="inline-link">Google Earth Engine API (`ee`)</a>, and <a href="https://planetarycomputer.microsoft.com/docs/quickstarts/sdk-overview/" target="_blank" rel="noopener noreferrer" class="inline-link">Planetary Computer SDK</a> to programmatically fetch data.</p>
+                            <p><strong>Preprocessing Steps:</strong> Includes radiometric/atmospheric correction, cloud masking (<a href="https://github.com/sentinel-hub/sentinel2-cloud-detector" target="_blank" rel="noopener noreferrer" class="inline-link">`s2cloudless`</a>, <a href="https://github.com/Synerise/phicloudmask" target="_blank" rel="noopener noreferrer" class="inline-link">`phicloudmask`</a>), mosaicking (<a href="https://rasterio.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Rasterio</a>, <a href="https://gdal.org/" target="_blank" rel="noopener noreferrer" class="inline-link">GDAL</a>), tiling, normalization (<a href="https://scikit-learn.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Scikit-learn</a>), and format conversion (<a href="https://github.com/Toblerity/Fiona" target="_blank" rel="noopener noreferrer" class="inline-link">Fiona</a>, <a href="https://rasterio.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Rasterio</a>).</p>
+                            <p><strong>Key Enablers:</strong> Analysis-Ready Data (ARD) and <a href="https://www.cogeo.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Cloud Optimized GeoTIFFs (COGs)</a> significantly streamline these processes.</p>
+                        </div>
+                    </div>
+
+                    <div class="methodology-step">
+                        <h3 class="text-xl font-medium text-sky-600 mb-2">B. Feature Engineering from Spatial Data</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">Creating informative variables from raw spatial data to improve ML model performance. This differs for vector and raster data.</p>
+                        <button class="mt-3 text-sm expandable-trigger">Show Details &raquo;</button>
+                        <div class="expandable-content p-4 mt-3 text-sm text-slate-600 leading-relaxed">
+                            <p><strong>Vector-based:</strong> Proximity (<a href="https://shapely.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Shapely</a>, <a href="https://geopandas.org/" target="_blank" rel="noopener noreferrer" class="inline-link">GeoPandas</a>), density, network analysis (<a href="https://osmnx.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">OSMnx</a>), spatial lags (<a href="https://pysal.org/" target="_blank" rel="noopener noreferrer" class="inline-link">PySAL</a>), interpolation (<a href="https://cenpy-devs.github.io/cenpy/" target="_blank" rel="noopener noreferrer" class="inline-link">`cenpy`</a>, <a href="https://pysal.org/tobler/" target="_blank" rel="noopener noreferrer" class="inline-link">`tobler`</a>).</p>
+                            <p><strong>Raster-based:</strong> Spectral indices (NDVI, EVI using <a href="https://rasterio.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Rasterio</a>/<a href="https://xarray.dev/" target="_blank" rel="noopener noreferrer" class="inline-link">Xarray</a>, <a href="https://spyndex.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">`spyndex`</a>), texture analysis (<a href="https://scikit-image.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Scikit-image</a>), topographic features (<a href="https://xarray-spatial.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">xarray-spatial</a>, <a href="https://github.com/r-barnes/richdem" target="_blank" rel="noopener noreferrer" class="inline-link">`richdem`</a>), zonal statistics (<a href="https://pythonhosted.org/rasterstats/" target="_blank" rel="noopener noreferrer" class="inline-link">`rasterstats`</a>).</p>
+                            <p><strong>ML Preparation:</strong> Converting GeoDataFrames/rasters to NumPy arrays/tensors, often facilitated by libraries like <a href="https://torchgeo.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">`TorchGeo`</a>.</p>
+                        </div>
+                    </div>
+
+                    <div class="methodology-step">
+                        <h3 class="text-xl font-medium text-sky-600 mb-2">C. Applying Supervised & Unsupervised Learning</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">Utilizing ML algorithms for classification, regression (supervised), and pattern discovery (unsupervised) on geodata.</p>
+                        <button class="mt-3 text-sm expandable-trigger">Show Details &raquo;</button>
+                        <div class="expandable-content p-4 mt-3 text-sm text-slate-600 leading-relaxed">
+                            <p><strong>Supervised Learning:</strong>
+                                <ul class="list-disc list-inside ml-2 space-y-1">
+                                    <li>Classification: Land Cover/Use (Random Forest, CNNs, U-Net), object classification.</li>
+                                    <li>Regression: Environmental parameter estimation, yield prediction, property value prediction.</li>
+                                </ul>
+                            </p>
+                            <p class="mt-2"><strong>Unsupervised Learning:</strong>
+                                <ul class="list-disc list-inside ml-2 space-y-1">
+                                    <li>Clustering: POI clustering, anomaly/hotspot detection (DBSCAN, <a href="https://pysal.org/" target="_blank" rel="noopener noreferrer" class="inline-link">PySAL</a>'s ESDA), regionalization.</li>
+                                    <li>Dimensionality Reduction: PCA for hyperspectral data.</li>
+                                </ul>
+                            </p>
+                            <p class="mt-2"><strong>Libraries:</strong> <a href="https://scikit-learn.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Scikit-learn</a>, <a href="https://pysal.org/" target="_blank" rel="noopener noreferrer" class="inline-link">PySAL</a>, <a href="https://www.tensorflow.org/" target="_blank" rel="noopener noreferrer" class="inline-link">TensorFlow</a>/<a href="https://keras.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Keras</a>, <a href="https://pytorch.org/" target="_blank" rel="noopener noreferrer" class="inline-link">PyTorch</a>, <a href="https://github.com/giswqs/geoai" target="_blank" rel="noopener noreferrer" class="inline-link">`geoai`</a>.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="methodology-step">
+                        <h3 class="text-xl font-medium text-sky-600 mb-2">D. Deep Learning for Geospatial Analysis</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">Leveraging neural networks to automate feature learning and achieve high performance on complex geospatial tasks, especially with imagery.</p>
+                        <button class="mt-3 text-sm expandable-trigger">Show Details &raquo;</button>
+                        <div class="expandable-content p-4 mt-3 text-sm text-slate-600 leading-relaxed">
+                            <p><strong>Image Classification/Scene Understanding:</strong> CNNs (ResNet, VGG), Vision Transformers (ViTs). Example: EuroSAT dataset.</p>
+                            <p><strong>Object Detection:</strong> Faster R-CNN, YOLO, SSD. Detecting buildings, cars, etc.</p>
+                            <p><strong>Semantic Segmentation:</strong> U-Net and variants. Pixel-level classification for land cover, road extraction. <a href="https://github.com/giswqs/geoai" target="_blank" rel="noopener noreferrer" class="inline-link">`geoai`</a> integrates <a href="https://segment-anything.com/" target="_blank" rel="noopener noreferrer" class="inline-link">SAM (Segment Anything Model)</a>.</p>
+                            <p><strong>Instance Segmentation:</strong> Mask R-CNN. Distinguishing individual object instances.</p>
+                            <p><strong>Frameworks:</strong> <a href="https://www.tensorflow.org/" target="_blank" rel="noopener noreferrer" class="inline-link">TensorFlow</a>/<a href="https://keras.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Keras</a>, <a href="https://pytorch.org/" target="_blank" rel="noopener noreferrer" class="inline-link">PyTorch</a> (with <a href="https://torchgeo.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">TorchGeo</a>), <a href="https://developers.arcgis.com/python/guide/overview-of-arcgis-learn/" target="_blank" rel="noopener noreferrer" class="inline-link">`arcgis.learn.models`</a>.</p>
+                            <p><strong>Training Data:</strong> Crucial, platforms like <a href="https://mlhub.earth/" target="_blank" rel="noopener noreferrer" class="inline-link">Radiant MLHub</a> provide labeled datasets.</p>
+                        </div>
+                    </div>
+
+                    <div class="methodology-step">
+                        <h3 class="text-xl font-medium text-sky-600 mb-2">E. Change Detection Workflows</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">Identifying differences in the state of an object or phenomenon over time using multi-temporal data. Essential for monitoring LULC change, urban expansion, disaster impacts.</p>
+                        <button class="mt-3 text-sm expandable-trigger">Show Details &raquo;</button>
+                        <div class="expandable-content p-4 mt-3 text-sm text-slate-600 leading-relaxed">
+                            <p><strong>Methodologies:</strong>
+                                <ul class="list-disc list-inside ml-2 space-y-1">
+                                    <li>Image Differencing, Post-Classification Comparison (PCC), Change Vector Analysis (CVA).</li>
+                                    <li>Deep Learning: Siamese Neural Networks, U-Net based architectures (<a href="https://developers.arcgis.com/python/api-reference/arcgis.learn.html#changedetector" target="_blank" rel="noopener noreferrer" class="inline-link">`arcgis.learn.ChangeDetector`</a>).</li>
+                                </ul>
+                            </p>
+                            <p class="mt-2"><strong>Libraries:</strong> <a href="https://developers.arcgis.com/python/api-reference/arcgis.learn.html#changedetector" target="_blank" rel="noopener noreferrer" class="inline-link">`arcgis.learn.ChangeDetector`</a>, <a href="https://centre-borelli.github.io/ruptures-docs/" target="_blank" rel="noopener noreferrer" class="inline-link">`ruptures`</a> (for general time-series), standard image processing and ML/DL libraries.</p>
+                            <p class="mt-2"><strong>Data Requirements:</strong> Accurately co-registered and radiometrically consistent time-series imagery. ARD and data cubes (e.g., via <a href="https://stackstac.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">`stackstac`</a>) are key.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="platforms" class="content-section bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-semibold mb-6 text-sky-700 border-b-2 border-sky-200 pb-3">Open Access Geodata Platforms</h2>
+                <p class="mb-6 text-slate-700 leading-relaxed">Access to high-quality, diverse geospatial data is crucial for GeoAI. This section highlights key open data platforms providing data suitable for AI/ML models, often in formats easily ingestible by <a href="https://www.python.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Python</a> libraries.</p>
+                
+                <div class="mb-6 flex flex-wrap gap-3" id="platformsSubNav">
+                    <button class="sub-nav-link active" data-filter="all">All Platforms</button>
+                    <button class="sub-nav-link" data-filter="major-satellite">Major Satellite</button>
+                    <button class="sub-nav-link" data-filter="specialized-thematic">Specialized</button>
+                </div>
+
+                <input type="text" id="platformSearch" class="search-input mb-6" placeholder="Search platforms by name or data type...">
+
+                <div class="overflow-x-auto bg-white rounded-lg border border-slate-200">
+                    <table class="min-w-full divide-y divide-slate-200" id="platformsTable">
+                        <thead class="table-header">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Platform Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Category</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Key Data Types</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Primary Access</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-slate-200">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="synthesis" class="content-section bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-semibold mb-6 text-sky-700 border-b-2 border-sky-200 pb-3">Synthesizing Resources for GeoAI</h2>
+                <p class="mb-8 text-slate-700 leading-relaxed">Building a versatile GeoAI assistant requires strategic selection and integration of libraries and platforms. This section offers recommendations, example workflow scenarios, and discusses emerging trends.</p>
+
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="text-xl font-medium text-sky-600 mb-2">Strategic Selection of Libraries & Platforms</h3>
+                        <p class="text-slate-600 leading-relaxed">A core stack might include <a href="https://geopandas.org/" target="_blank" rel="noopener noreferrer" class="inline-link">GeoPandas</a>, <a href="https://github.com/Toblerity/Fiona" target="_blank" rel="noopener noreferrer" class="inline-link">Fiona</a>, <a href="https://rasterio.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Rasterio</a>, <a href="https://xarray.dev/" target="_blank" rel="noopener noreferrer" class="inline-link">Xarray</a>/<a href="https://corteva.github.io/rioxarray/" target="_blank" rel="noopener noreferrer" class="inline-link">rioxarray</a> for data handling; <a href="https://scikit-learn.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Scikit-learn</a> for traditional ML; <a href="https://www.tensorflow.org/" target="_blank" rel="noopener noreferrer" class="inline-link">TensorFlow</a>/<a href="https://keras.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Keras</a> or <a href="https://pytorch.org/" target="_blank" rel="noopener noreferrer" class="inline-link">PyTorch</a>/<a href="https://torchgeo.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">TorchGeo</a> for deep learning. Specialized libraries like <a href="https://pysal.org/" target="_blank" rel="noopener noreferrer" class="inline-link">PySAL</a>, <a href="https://osmnx.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">OSMnx</a>, and <a href="https://github.com/giswqs/geoai" target="_blank" rel="noopener noreferrer" class="inline-link">`geoai`</a> add targeted capabilities. Data platforms like <a href="https://planetarycomputer.microsoft.com/" target="_blank" rel="noopener noreferrer" class="inline-link">Microsoft Planetary Computer</a>, <a href="https://earthengine.google.com/" target="_blank" rel="noopener noreferrer" class="inline-link">Google Earth Engine</a>, <a href="https://mlhub.earth/" target="_blank" rel="noopener noreferrer" class="inline-link">Radiant MLHub</a>, <a href="https://www.usgs.gov/core-science-systems/nli/eros" target="_blank" rel="noopener noreferrer" class="inline-link">USGS EROS</a>, and <a href="https://dataspace.copernicus.eu/" target="_blank" rel="noopener noreferrer" class="inline-link">Copernicus Data Space Ecosystem</a> are key, especially with <a href="https://stacspec.org/" target="_blank" rel="noopener noreferrer" class="inline-link">STAC</a> API access.</p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-medium text-sky-600 mb-3">Automated Workflows: Example Scenarios</h3>
+                        <div class="space-y-5">
+                            <div class="p-5 border border-slate-200 rounded-lg bg-slate-50 shadow-sm">
+                                <h4 class="font-semibold text-lg text-sky-700">Scenario 1: Land Cover Classification (Sentinel-2)</h4>
+                                <button class="mt-2 text-sm expandable-trigger">Show Workflow Steps &raquo;</button>
+                                <div class="expandable-content p-4 mt-3 text-sm text-slate-600 leading-relaxed">
+                                    <ol class="list-decimal list-inside space-y-1">
+                                        <li><strong>Data Acquisition:</strong> <a href="https://pystac-client.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">`pystac-client`</a>/<a href="https://sentinelsat.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">`sentinelsat`</a> for Sentinel-2 L2A from Copernicus/Planetary Computer.</li>
+                                        <li><strong>Preprocessing:</strong> Cloud masking (<a href="https://github.com/sentinel-hub/sentinel2-cloud-detector" target="_blank" rel="noopener noreferrer" class="inline-link">`s2cloudless`</a>/<a href="https://github.com/Synerise/phicloudmask" target="_blank" rel="noopener noreferrer" class="inline-link">`phicloudmask`</a>), mosaicking (<a href="https://rasterio.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Rasterio</a>), tiling.</li>
+                                        <li><strong>Feature Engineering (Optional):</strong> Spectral indices (NDVI, NDWI) via <a href="https://rasterio.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Rasterio</a>/<a href="https://xarray.dev/" target="_blank" rel="noopener noreferrer" class="inline-link">Xarray</a>.</li>
+                                        <li><strong>Model Training/Inference:</strong> U-Net (<a href="https://pytorch.org/" target="_blank" rel="noopener noreferrer" class="inline-link">PyTorch</a>/<a href="https://www.tensorflow.org/" target="_blank" rel="noopener noreferrer" class="inline-link">TensorFlow</a> with <a href="https://torchgeo.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">`TorchGeo`</a>) or pre-trained model (<a href="https://github.com/giswqs/geoai" target="_blank" rel="noopener noreferrer" class="inline-link">`geoai`</a>). Training data from <a href="https://mlhub.earth/" target="_blank" rel="noopener noreferrer" class="inline-link">Radiant MLHub</a>.</li>
+                                        <li><strong>Postprocessing:</strong> Vectorize results (<a href="https://rasterio.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Rasterio</a>, <a href="https://geopandas.org/" target="_blank" rel="noopener noreferrer" class="inline-link">GeoPandas</a>), visualize.</li>
+                                    </ol>
+                                </div>
+                            </div>
+                            <div class="p-5 border border-slate-200 rounded-lg bg-slate-50 shadow-sm">
+                                <h4 class="font-semibold text-lg text-sky-700">Scenario 2: Building Footprint Extraction & Change Detection</h4>
+                                 <button class="mt-2 text-sm expandable-trigger">Show Workflow Steps &raquo;</button>
+                                <div class="expandable-content p-4 mt-3 text-sm text-slate-600 leading-relaxed">
+                                    <ol class="list-decimal list-inside space-y-1">
+                                        <li><strong>Data Acquisition:</strong> High-res imagery (e.g., NAIP from <a href="https://planetarycomputer.microsoft.com/" target="_blank" rel="noopener noreferrer" class="inline-link">Planetary Computer</a>) for multiple time periods.</li>
+                                        <li><strong>Preprocessing:</strong> Co-registration, radiometric normalization.</li>
+                                        <li><strong>Footprint Extraction (T1 & T2):</strong> U-Net or <a href="https://segment-anything.com/" target="_blank" rel="noopener noreferrer" class="inline-link">SAM</a> (<a href="https://github.com/giswqs/geoai" target="_blank" rel="noopener noreferrer" class="inline-link">`geoai`</a>) for segmentation.</li>
+                                        <li><strong>Change Detection:</strong> Post-segmentation comparison (<a href="https://geopandas.org/" target="_blank" rel="noopener noreferrer" class="inline-link">GeoPandas</a>) or direct DL model (<a href="https://developers.arcgis.com/python/api-reference/arcgis.learn.html#changedetector" target="_blank" rel="noopener noreferrer" class="inline-link">`arcgis.learn.ChangeDetector`</a>).</li>
+                                        <li><strong>Output:</strong> Maps of new/demolished buildings, urban growth statistics.</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-medium text-sky-600 mb-2">Synergies and Interoperability</h3>
+                        <p class="text-slate-600 leading-relaxed">The <a href="https://www.python.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Python</a> geospatial ecosystem thrives on interoperability. <a href="https://stacspec.org/" target="_blank" rel="noopener noreferrer" class="inline-link">STAC</a> standardizes data discovery. <a href="https://geopandas.org/" target="_blank" rel="noopener noreferrer" class="inline-link">GeoPandas</a>/<a href="https://rasterio.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Rasterio</a> outputs (GeoDataFrames, NumPy arrays) are ML-framework-ready. <a href="https://www.cogeo.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Cloud Optimized GeoTIFFs (COGs)</a> enable efficient cloud-based data access.</p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-medium text-sky-600 mb-2">Emerging Trends and Future Considerations</h3>
+                        <ul class="list-disc list-inside space-y-1 text-slate-600 leading-relaxed">
+                            <li><strong>Foundation Models for Geospatial:</strong> Large, pre-trained models offering generalizable capabilities.</li>
+                            <li><strong>Explainable AI (XAI):</strong> Understanding model predictions for trust and adoption.</li>
+                            <li><strong>Ethical Considerations:</strong> Bias, fairness, privacy in GeoAI.</li>
+                            <li><strong>Low-Code/No-Code Interfaces:</strong> Abstracting coding complexity, relying on robust <a href="https://www.python.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Python</a> backends.</li>
+                        </ul>
+                        <p class="mt-3 text-slate-600 leading-relaxed">Cloud-native architectures (<a href="https://stacspec.org/" target="_blank" rel="noopener noreferrer" class="inline-link">STAC</a>, <a href="https://www.cogeo.org/" target="_blank" rel="noopener noreferrer" class="inline-link">COG</a>, scalable compute via APIs) are central to the future of automated GeoAI.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="conclusion" class="content-section bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-semibold mb-6 text-sky-700 border-b-2 border-sky-200 pb-3">Conclusion</h2>
+                <div class="space-y-5 text-slate-700 leading-relaxed">
+                    <h3 class="text-xl font-medium text-sky-600">Recap of Key Findings</h3>
+                    <p>This exploration has highlighted a comprehensive suite of <a href="https://www.python.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Python</a> libraries, methodologies, and open data platforms forming the technical bedrock for an advanced GeoAI assistant. Key resources include <a href="https://geopandas.org/" target="_blank" rel="noopener noreferrer" class="inline-link">GeoPandas</a>, <a href="https://rasterio.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Rasterio</a>, <a href="https://scikit-learn.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Scikit-learn</a>, <a href="https://www.tensorflow.org/" target="_blank" rel="noopener noreferrer" class="inline-link">TensorFlow</a>/<a href="https://pytorch.org/" target="_blank" rel="noopener noreferrer" class="inline-link">PyTorch</a>, <a href="https://pystac-client.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">`pystac-client`</a>, and platforms like <a href="https://planetarycomputer.microsoft.com/" target="_blank" rel="noopener noreferrer" class="inline-link">Microsoft Planetary Computer</a>, <a href="https://earthengine.google.com/" target="_blank" rel="noopener noreferrer" class="inline-link">Google Earth Engine</a>, and <a href="https://mlhub.earth/" target="_blank" rel="noopener noreferrer" class="inline-link">Radiant MLHub</a>. Automation is achievable across the GeoAI workflow, from data acquisition to deep learning applications.</p>
+                
+                    <h3 class="text-xl font-medium text-sky-600">Empowering the GeoAI Assistant</h3>
+                    <p>The resources detailed offer a robust foundation for a "vibe-coding" GeoAI assistant. Strategic combination of these tools can empower the assistant to:</p>
+                    <ul class="list-disc list-inside ml-4 mt-2 space-y-1 text-slate-600">
+                        <li>Automate discovery, acquisition, and preprocessing of diverse geospatial data.</li>
+                        <li>Programmatically engineer rich, informative features.</li>
+                        <li>Apply a wide spectrum of AI models for classification, segmentation, detection, and prediction.</li>
+                        <li>Execute complex analytical chains like change detection with efficiency.</li>
+                    </ul>
+                    <p class="mt-3">The open-source nature of most identified resources fosters collaboration and innovation. An assistant built on this foundation has immense potential to democratize advanced GeoAI capabilities and accelerate discovery across numerous domains.</p>
+                </div>
+            </section>
+
+            <section id="references" class="content-section bg-white p-6 md:p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-semibold mb-6 text-sky-700 border-b-2 border-sky-200 pb-3">References & Key Resources</h2>
+                <p class="mb-4 text-slate-700 leading-relaxed">
+                    This section provides links to the primary documentation or homepages for the key Python libraries, data platforms, and specifications discussed throughout this interactive explorer. These resources are fundamental to the GeoAI ecosystem.
+                </p>
+                <p class="mb-6 text-sm text-slate-600 leading-relaxed italic">
+                    Note: The original source report for this interactive explorer may refer to a more extensive bibliographic list (e.g., "105 Works Cited"). The list below focuses on direct links to the tools and platforms themselves for practical access. For a full academic bibliography, please consult the original, complete report document if available.
+                </p>
+                <ol class="list-decimal list-inside space-y-2 text-sm text-slate-600 leading-relaxed reference-list">
+                    <li>Python Software Foundation. "Python Language Reference." <a href="https://www.python.org/" target="_blank" rel="noopener noreferrer" class="inline-link">https://www.python.org/</a></li>
+                    <li>GeoPandas Development Team. "GeoPandas Documentation." <a href="https://geopandas.org/" target="_blank" rel="noopener noreferrer" class="inline-link">https://geopandas.org/</a></li>
+                    <li>Shapely Development Team. "Shapely Documentation." <a href="https://shapely.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">https://shapely.readthedocs.io/</a></li>
+                    <li>Fiona Development Team. "Fiona Repository." <a href="https://github.com/Toblerity/Fiona" target="_blank" rel="noopener noreferrer" class="inline-link">https://github.com/Toblerity/Fiona</a></li>
+                    <li>PySAL Development Team. "PySAL Documentation." <a href="https://pysal.org/" target="_blank" rel="noopener noreferrer" class="inline-link">https://pysal.org/</a></li>
+                    <li>OSMnx Development Team. "OSMnx Documentation." <a href="https://osmnx.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">https://osmnx.readthedocs.io/</a></li>
+                    <li>Rasterio Development Team. "Rasterio Documentation." <a href="https://rasterio.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">https://rasterio.readthedocs.io/</a></li>
+                    <li>Xarray Development Team. "Xarray Documentation." <a href="https://xarray.dev/" target="_blank" rel="noopener noreferrer" class="inline-link">https://xarray.dev/</a></li>
+                    <li>rioxarray Development Team. "rioxarray Documentation." <a href="https://corteva.github.io/rioxarray/" target="_blank" rel="noopener noreferrer" class="inline-link">https://corteva.github.io/rioxarray/</a></li>
+                    <li>GDAL Development Team. "GDAL - Geospatial Data Abstraction Library." <a href="https://gdal.org/" target="_blank" rel="noopener noreferrer" class="inline-link">https://gdal.org/</a></li>
+                    <li>Satpy Development Team. "Satpy Documentation." <a href="https://satpy.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">https://satpy.readthedocs.io/</a></li>
+                    <li>xarray-spatial Development Team. "xarray-spatial Documentation." <a href="https://xarray-spatial.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">https://xarray-spatial.readthedocs.io/</a></li>
+                    <li>Qiusheng Wu. "geoai Package." <a href="https://github.com/giswqs/geoai" target="_blank" rel="noopener noreferrer" class="inline-link">https://github.com/giswqs/geoai</a></li>
+                    <li>Scikit-learn Development Team. "Scikit-learn Documentation." <a href="https://scikit-learn.org/" target="_blank" rel="noopener noreferrer" class="inline-link">https://scikit-learn.org/</a></li>
+                    <li>TensorFlow Development Team. "TensorFlow." <a href="https://www.tensorflow.org/" target="_blank" rel="noopener noreferrer" class="inline-link">https://www.tensorflow.org/</a> (Includes Keras)</li>
+                    <li>PyTorch Development Team. "PyTorch." <a href="https://pytorch.org/" target="_blank" rel="noopener noreferrer" class="inline-link">https://pytorch.org/</a></li>
+                    <li>TorchGeo Development Team. "TorchGeo Documentation." <a href="https://torchgeo.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">https://torchgeo.readthedocs.io/</a></li>
+                    <li>geospatial-learn Development Team. "geospatial-learn Repository." <a href="https://github.com/geospatial-learn/geospatial-learn" target="_blank" rel="noopener noreferrer" class="inline-link">https://github.com/geospatial-learn/geospatial-learn</a></li>
+                    <li>STAC Spec Authors. "SpatioTemporal Asset Catalog (STAC) Specification." <a href="https://stacspec.org/" target="_blank" rel="noopener noreferrer" class="inline-link">https://stacspec.org/</a></li>
+                    <li>pystac Development Team. "pystac & pystac-client Documentation." <a href="https://pystac.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">https://pystac.readthedocs.io/</a> (Covers both)</li>
+                    <li>sentinelsat Development Team. "sentinelsat Documentation." <a href="https://sentinelsat.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">https://sentinelsat.readthedocs.io/</a></li>
+                    <li>Google. "Google Earth Engine." <a href="https://earthengine.google.com/" target="_blank" rel="noopener noreferrer" class="inline-link">https://earthengine.google.com/</a> (Python API: <a href="https://developers.google.com/earth-engine/guides/python_install" target="_blank" rel="noopener noreferrer" class="inline-link">docs</a>)</li>
+                    <li>Microsoft. "Planetary Computer." <a href="https://planetarycomputer.microsoft.com/" target="_blank" rel="noopener noreferrer" class="inline-link">https://planetarycomputer.microsoft.com/</a> (SDK: <a href="https://planetarycomputer.microsoft.com/docs/quickstarts/sdk-overview/" target="_blank" rel="noopener noreferrer" class="inline-link">docs</a>)</li>
+                    <li>USGS EROS Center. <a href="https://www.usgs.gov/core-science-systems/nli/eros" target="_blank" rel="noopener noreferrer" class="inline-link">https://www.usgs.gov/core-science-systems/nli/eros</a></li>
+                    <li>Copernicus Programme. "Copernicus Data Space Ecosystem." <a href="https://dataspace.copernicus.eu/" target="_blank" rel="noopener noreferrer" class="inline-link">https://dataspace.copernicus.eu/</a></li>
+                    <li>Amazon Web Services. "Registry of Open Data on AWS." <a href="https://registry.opendata.aws/" target="_blank" rel="noopener noreferrer" class="inline-link">https://registry.opendata.aws/</a></li>
+                    <li>Radiant Earth Foundation. "Radiant MLHub." <a href="https://mlhub.earth/" target="_blank" rel="noopener noreferrer" class="inline-link">https://mlhub.earth/</a></li>
+                    <li>OpenTopography. "OpenTopography." <a href="https://opentopography.org/" target="_blank" rel="noopener noreferrer" class="inline-link">https://opentopography.org/</a></li>
+                    <li>GBIF. "Global Biodiversity Information Facility." <a href="https://www.gbif.org/" target="_blank" rel="noopener noreferrer" class="inline-link">https://www.gbif.org/</a></li>
+                    <li>VITO. "Terrascope." <a href="https://terrascope.be/" target="_blank" rel="noopener noreferrer" class="inline-link">https://terrascope.be/</a></li>
+                    <li>OpenStreetMap Foundation. "OpenStreetMap." <a href="https://www.openstreetmap.org/" target="_blank" rel="noopener noreferrer" class="inline-link">https://www.openstreetmap.org/</a></li>
+                    <li>NASA. "NASA Earthdata." <a href="https://www.earthdata.nasa.gov/" target="_blank" rel="noopener noreferrer" class="inline-link">https://www.earthdata.nasa.gov/</a></li>
+                    <li>Cloud Optimized GeoTIFF. "COG Homepage." <a href="https://www.cogeo.org/" target="_blank" rel="noopener noreferrer" class="inline-link">https://www.cogeo.org/</a></li>
+                    <li>s2cloudless Development Team. "s2cloudless Repository." <a href="https://github.com/sentinel-hub/sentinel2-cloud-detector" target="_blank" rel="noopener noreferrer" class="inline-link">https://github.com/sentinel-hub/sentinel2-cloud-detector</a></li>
+                    <li>phicloudmask Development Team. "phicloudmask Repository." <a href="https://github.com/Synerise/phicloudmask" target="_blank" rel="noopener noreferrer" class="inline-link">https://github.com/Synerise/phicloudmask</a></li>
+                    <li>cenpy Development Team. "cenpy Documentation." <a href="https://cenpy-devs.github.io/cenpy/" target="_blank" rel="noopener noreferrer" class="inline-link">https://cenpy-devs.github.io/cenpy/</a></li>
+                    <li>tobler Development Team. "tobler Documentation." <a href="https://pysal.org/tobler/" target="_blank" rel="noopener noreferrer" class="inline-link">https://pysal.org/tobler/</a></li>
+                    <li>spyndex Development Team. "spyndex Documentation." <a href="https://spyndex.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">https://spyndex.readthedocs.io/</a></li>
+                    <li>Scikit-image Development Team. "Scikit-image Documentation." <a href="https://scikit-image.org/" target="_blank" rel="noopener noreferrer" class="inline-link">https://scikit-image.org/</a></li>
+                    <li>richdem Development Team. "richdem Repository." <a href="https://github.com/r-barnes/richdem" target="_blank" rel="noopener noreferrer" class="inline-link">https://github.com/r-barnes/richdem</a></li>
+                    <li>rasterstats Development Team. "rasterstats Documentation." <a href="https://pythonhosted.org/rasterstats/" target="_blank" rel="noopener noreferrer" class="inline-link">https://pythonhosted.org/rasterstats/</a></li>
+                    <li>Meta Research. "Segment Anything Model (SAM)." <a href="https://segment-anything.com/" target="_blank" rel="noopener noreferrer" class="inline-link">https://segment-anything.com/</a></li>
+                    <li>Esri. "ArcGIS API for Python - arcgis.learn." <a href="https://developers.arcgis.com/python/guide/overview-of-arcgis-learn/" target="_blank" rel="noopener noreferrer" class="inline-link">https://developers.arcgis.com/python/guide/overview-of-arcgis-learn/</a></li>
+                    <li>ruptures Development Team. "ruptures Documentation." <a href="https://centre-borelli.github.io/ruptures-docs/" target="_blank" rel="noopener noreferrer" class="inline-link">https://centre-borelli.github.io/ruptures-docs/</a></li>
+                    <li>stackstac Development Team. "stackstac Documentation." <a href="https://stackstac.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">https://stackstac.readthedocs.io/</a></li>
+                </ol>
+            </section>
+        </main>
+    </div>
+
+<script>
+    const libraryData = [
+        { name: "GeoPandas", url: "https://geopandas.org/", category: "Vector Data", categorySlug: "vector", core: "Spatial operations on geometric types using pandas DataFrames; read/write vector formats.", significance: "Simplifies vector data manipulation and integration of attribute/geometric data. Essential for preparing labeled data for ML.", automation: "Automates vector data preprocessing, spatial joins, filtering, and geometric operations in Python workflows." },
+        { name: "Shapely", url: "https://shapely.readthedocs.io/", category: "Vector Data", categorySlug: "vector", core: "Manipulation and analysis of planar geometric objects; core geometric operations.", significance: "Provides fundamental geometric operations (buffer, intersection, etc.) for spatial analysis and feature engineering.", automation: "Enables programmatic creation, modification, and analysis of geometries, vital for automated feature extraction." },
+        { name: "Fiona", url: "https://github.com/Toblerity/Fiona", category: "Vector Data", categorySlug: "vector", core: "Python API for OGR; reading and writing various vector data formats.", significance: "Ensures robust, Python-friendly access to diverse vector file formats for data ingestion.", automation: "Facilitates automated data ingestion from various sources and export of processed vector data." },
+        { name: "PySAL", url: "https://pysal.org/", category: "Vector Data", categorySlug: "vector", core: "Spatial statistics, econometrics, ESDA, spatial regression.", significance: "Crucial for advanced spatial analysis, understanding spatial patterns, and incorporating spatial intelligence into ML models.", automation: "Automates calculation of spatial statistics and generation of spatially-aware features (e.g., spatial lags)." },
+        { name: "OSMnx", url: "https://osmnx.readthedocs.io/", category: "Vector Data", categorySlug: "vector", core: "Download, model, analyze, and visualize OpenStreetMap networks.", significance: "Provides easy access to detailed street network data and tools for network-based analysis.", automation: "Automates acquisition and processing of network data, enabling generation of network-based features for ML." },
+        { name: "Rasterio", url: "https://rasterio.readthedocs.io/", category: "Raster Data", categorySlug: "raster", core: "Reads/writes geospatial raster formats; Pythonic API based on NumPy.", significance: "Fundamental for accessing, manipulating pixel data, and operations like band math, mosaicking, re-projection.", automation: "Enables automated pipelines for reading, processing (clipping, resampling), and writing raster data." },
+        { name: "Xarray", url: "https://xarray.dev/", category: "Raster Data", categorySlug: "raster", core: "Works with labeled multi-dimensional arrays; suitable for complex rasters.", significance: "Adds labels to raw arrays, making data handling intuitive; enables powerful operations like grouping.", automation: "Simplifies management and analysis of large, multi-dimensional raster datasets in automated workflows." },
+        { name: "rioxarray", url: "https://corteva.github.io/rioxarray/", category: "Raster Data", categorySlug: "raster", core: "Extends Xarray with geospatial capabilities, integrating Rasterio.", significance: "Makes Xarray 'spatially aware' for easy opening, re-projection, clipping of rasters.", automation: "Streamlines using Xarray for geospatial raster analysis within automated Python scripts." },
+        { name: "GDAL", url: "https://gdal.org/", category: "Raster Data", categorySlug: "raster", core: "Translator library for vast raster/vector formats; backend for many libraries.", significance: "Unparalleled format support and wide range of command-line utilities for raster processing.", automation: "Command-line tools are highly effective for scripting and automating batch processing tasks." },
+        { name: "Satpy", url: "https://satpy.readthedocs.io/", category: "Raster Data", categorySlug: "raster", core: "Reads, manipulates, and writes earth-observing satellite data.", significance: "Specialized for satellite data, handling various sensor formats and facilitating common preprocessing.", automation: "Automates ingestion and preparation of data from multiple satellite missions for analysis." },
+        { name: "xarray-spatial", url: "https://xarray-spatial.readthedocs.io/", category: "Raster Data", categorySlug: "raster", core: "Implements common raster analysis functions (hillshade, viewshed) using Numba.", significance: "Provides GIS-like raster analysis tools directly within the Xarray ecosystem.", automation: "Enables complex raster analyses to be performed programmatically and efficiently in Python." },
+        { name: "`geoai` package", url: "https://github.com/giswqs/geoai", category: "ML/GeoAI Integration", categorySlug: "ml-geoai", core: "Bridges AI and geospatial analysis; tools for segmentation (SAM), classification.", significance: "Offers a dedicated toolkit for GeoAI tasks, simplifying application of advanced models.", automation: "Streamlines workflows for common GeoAI tasks like land cover classification and segmentation." },
+        { name: "Scikit-learn", url: "https://scikit-learn.org/", category: "ML/GeoAI Integration", categorySlug: "ml-geoai", core: "General-purpose ML: classification, regression, clustering, preprocessing.", significance: "Provides robust, well-tested ML algorithms applicable to geospatial data; valuable preprocessing tools.", automation: "Consistent API allows easy incorporation into automated ML pipelines for geospatial tasks." },
+        { name: "TensorFlow & Keras", url: "https://www.tensorflow.org/", category: "ML/GeoAI Integration", categorySlug: "ml-geoai", core: "Comprehensive ML platform, strong for deep learning (CNNs, RNNs).", significance: "Enables development of complex DL models for image segmentation, object detection, scene classification.", automation: "Supports scalable training and deployment, crucial for automated GeoAI systems." },
+        { name: "PyTorch", url: "https://pytorch.org/", category: "ML/GeoAI Integration", categorySlug: "ml-geoai", core: "ML framework known for flexibility and dynamic computation graphs.", significance: "Favored for developing novel DL architectures for geospatial applications.", automation: "Supports building and training sophisticated models for automated geospatial analysis." },
+        { name: "TorchGeo", url: "https://torchgeo.readthedocs.io/", category: "ML/GeoAI Integration", categorySlug: "ml-geoai", core: "PyTorch domain library for geospatial data: datasets, samplers, transforms.", significance: "Simplifies using PyTorch for geospatial tasks by handling unique data characteristics.", automation: "Streamlines data loading and preparation for PyTorch-based GeoAI models, facilitating automated pipelines." },
+        { name: "`geospatial-learn`", url: "https://github.com/geospatial-learn/geospatial-learn", category: "ML/GeoAI Integration", categorySlug: "ml-geoai", core: "Uses Scikit-learn/XGBoost with geospatial data; Sentinel-2 utilities.", significance: "Aims to provide convenient commands for GeoAI processing chains.", automation: "Facilitates creation of automated workflows combining geospatial data manipulation with ML model application." },
+        { name: "`pystac` / `pystac-client`", url: "https://pystac.readthedocs.io/", category: "Remote Sensing Access", categorySlug: "remote-sensing", core: "`pystac` for STAC metadata; `pystac-client` for STAC API interaction.", significance: "Enables programmatic search and discovery of remote sensing imagery from STAC catalogs.", automation: "Automates data discovery and metadata retrieval, feeding into download/processing pipelines." },
+        { name: "`sentinelsat`", url: "https://sentinelsat.readthedocs.io/", category: "Remote Sensing Access", categorySlug: "remote-sensing", core: "Searches, downloads, retrieves metadata of Sentinel images from Copernicus Hub.", significance: "Provides dedicated Python interface for accessing key Sentinel open data.", automation: "Automates acquisition of Sentinel imagery based on user-defined criteria." },
+        { name: "Google Earth Engine API", url: "https://developers.google.com/earth-engine/guides/python_install", category: "Remote Sensing Access", categorySlug: "remote-sensing", core: "Python client (`ee`) for GEE's data catalog and planetary-scale analysis.", significance: "Access to vast ARD archive and server-side processing, reducing local download/computation needs.", automation: "Enables complex, large-scale geospatial analyses and data preparation in the cloud." },
+        { name: "Planetary Computer SDK", url: "https://planetarycomputer.microsoft.com/docs/quickstarts/sdk-overview/", category: "Remote Sensing Access", categorySlug: "remote-sensing", core: "Python library for Microsoft Planetary Computer (STAC API, data catalog).", significance: "Facilitates access to data on Planetary Computer and integration with Azure.", automation: "Enables automated search, access, and processing of data within the Planetary Computer ecosystem." }
+    ];
+
+    const platformData = [
+        { name: "USGS EROS Center", url: "https://www.usgs.gov/core-science-systems/nli/eros", category: "Major Satellite Providers", categorySlug: "major-satellite", keyData: "Landsat (L1, L2, ARD, L3 Science Products), DEMs.", access: "STAC API, M2M API, AWS S3.", significance: "Long-term monitoring, change detection. STAC & COG on AWS facilitate automation.", pythonIntegration: "`pystac-client`, AWS SDK (`boto3`), GDAL/Rasterio." },
+        { name: "Copernicus Data Space Ecosystem (CDSE)", url: "https://dataspace.copernicus.eu/", category: "Major Satellite Providers", categorySlug: "major-satellite", keyData: "Sentinel-1, Sentinel-2, Sentinel-3, Sentinel-5P.", access: "STAC API, OpenEO.", significance: "High-resolution, frequent global data for timely monitoring. STAC API is key.", pythonIntegration: "`pystac-client`, `sentinelsat`, OpenEO Python client." },
+        { name: "Microsoft Planetary Computer", url: "https://planetarycomputer.microsoft.com/", category: "Major Satellite Providers", categorySlug: "major-satellite", keyData: "Sentinel-1/2, Landsat C2L2, NAIP, ASTER.", access: "STAC API, Python SDK, Azure Blob Storage.", significance: "Comprehensive data catalog + Azure compute. Strong STAC support.", pythonIntegration: "Planetary Computer SDK, `pystac-client`, `geoai`, Xarray." },
+        { name: "Google Earth Engine (GEE)", url: "https://earthengine.google.com/", category: "Major Satellite Providers", categorySlug: "major-satellite", keyData: "Landsat, Sentinel, MODIS, NAIP, diverse global ARD.", access: "Python API (`ee`), JavaScript API.", significance: "Planetary-scale server-side processing, ideal for large-scale analysis.", pythonIntegration: "`ee` (Earth Engine Python API)." },
+        { name: "AWS Open Data", url: "https://registry.opendata.aws/", category: "Major Satellite Providers", categorySlug: "major-satellite", keyData: "Landsat, Sentinel, climate models, weather data.", access: "S3 direct access, STAC catalogs.", significance: "Direct access to large archives in cloud-native formats for AWS workflows.", pythonIntegration: "AWS SDK (`boto3`), `pystac-client`, Rasterio/GeoPandas." },
+        { name: "Radiant MLHub", url: "https://mlhub.earth/", category: "Specialized & Thematic", categorySlug: "specialized-thematic", keyData: "Labeled EO training data (imagery & labels), ML models.", access: "STAC API, Python client (`radiant-mlhub`).", significance: "Crucial for developing supervised GeoAI models with high-quality training data.", pythonIntegration: "`radiant-mlhub` client, `pystac-client`." },
+        { name: "OpenTopography", url: "https://opentopography.org/", category: "Specialized & Thematic", categorySlug: "specialized-thematic", keyData: "High-resolution DEMs, LiDAR point clouds.", access: "REST APIs, CSW.", significance: "Essential for detailed elevation data (terrain analysis, hydrology).", pythonIntegration: "`requests`, GDAL/Rasterio." },
+        { name: "GBIF", url: "https://www.gbif.org/", category: "Specialized & Thematic", categorySlug: "specialized-thematic", keyData: "Species occurrence data, checklists, taxonomic info.", access: "RESTful API.", significance: "Vital for ecological modeling, species distribution, biodiversity research.", pythonIntegration: "`requests`, `pandas`/`geopandas`." },
+        { name: "VITO Terrascope", url: "https://terrascope.be/", category: "Specialized & Thematic", categorySlug: "specialized-thematic", keyData: "Sentinel, SPOT-Vegetation, PROBA-V.", access: "OpenSearch, STAC, OpenEO API.", significance: "Long-term time-series for vegetation monitoring, land surface dynamics.", pythonIntegration: "`pystac-client`, OpenEO Python client." },
+        { name: "OpenStreetMap (OSM)", url: "https://www.openstreetmap.org/", category: "Specialized & Thematic", categorySlug: "specialized-thematic", keyData: "Global roads, buildings, POIs, land use (vector).", access: "Overpass API, Geofabrik downloads.", significance: "Rich global vector data for context, network analysis, feature engineering.", pythonIntegration: "`OSMnx`, `requests`, GeoPandas/Fiona." },
+        { name: "NASA Earthdata", url: "https://www.earthdata.nasa.gov/", category: "Specialized & Thematic", categorySlug: "specialized-thematic", keyData: "Diverse NASA satellite imagery and Earth science datasets.", access: "GIBS APIs (WMTS, WMS), Earthdata Search.", significance: "Broad access to NASA's extensive Earth observation archives.", pythonIntegration: "GDAL (via GIBS), `requests`." }
+    ];
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const navLinks = document.querySelectorAll('.nav-link');
+        const contentSections = document.querySelectorAll('.content-section');
+        const librariesTableBody = document.querySelector('#librariesTable tbody');
+        const platformsTableBody = document.querySelector('#platformsTable tbody');
+        const librarySearchInput = document.getElementById('librarySearch');
+        const platformSearchInput = document.getElementById('platformSearch');
+        const librariesSubNav = document.getElementById('librariesSubNav');
+        const platformsSubNav = document.getElementById('platformsSubNav');
+
+        function populateTable(tableBody, data, type) {
+            tableBody.innerHTML = ''; 
+            data.forEach(item => {
+                const row = tableBody.insertRow();
+                row.className = `data-row ${type}-row ${item.categorySlug || ''} cursor-pointer`;
+                
+                const cellName = row.insertCell();
+                cellName.className = 'px-6 py-4 whitespace-nowrap text-sm';
+                // Structure: Cell -> Flex Container -> (Toggle Button + Link)
+                let nameHtml = '<div class="flex items-center">';
+                nameHtml += `<span class="details-toggle-btn" title="Toggle details"><span class="details-icon"></span></span>`;
+                if (item.url) {
+                    nameHtml += `<a href="${item.url}" target="_blank" rel="noopener noreferrer" class="inline-link font-medium text-slate-800 hover:text-sky-600 ml-1">${item.name}</a>`;
+                } else {
+                    nameHtml += `<span class="font-medium text-slate-800 ml-1">${item.name}</span>`;
+                }
+                nameHtml += '</div>';
+                cellName.innerHTML = nameHtml;
+
+                const cellCategory = row.insertCell();
+                cellCategory.className = 'px-6 py-4 whitespace-nowrap text-sm text-slate-500';
+                cellCategory.textContent = item.category;
+                
+                if (type === 'library') {
+                    const cellCore = row.insertCell();
+                    cellCore.className = 'px-6 py-4 text-sm text-slate-500';
+                    cellCore.textContent = item.core;
+                } else if (type === 'platform') {
+                    const cellKeyData = row.insertCell();
+                    cellKeyData.className = 'px-6 py-4 text-sm text-slate-500';
+                    cellKeyData.textContent = item.keyData;
+                    const cellAccess = row.insertCell();
+                    cellAccess.className = 'px-6 py-4 text-sm text-slate-500';
+                    cellAccess.textContent = item.access;
+                }
+
+                const detailsRow = tableBody.insertRow();
+                detailsRow.className = 'expandable-content';
+                const detailsCell = detailsRow.insertCell();
+                detailsCell.colSpan = type === 'library' ? 3 : 4;
+                detailsCell.className = 'px-0 py-0'; 
+                detailsCell.innerHTML = `
+                    <div class="p-5 m-0">
+                        <h4 class="font-semibold text-sky-700 mb-1 text-base">Significance:</h4>
+                        <p class="text-sm text-slate-600 mb-3 leading-relaxed">${item.significance}</p>
+                        ${type === 'library' ? `<h4 class="font-semibold text-sky-700 mb-1 text-base">Automation Contribution:</h4><p class="text-sm text-slate-600 leading-relaxed">${item.automation}</p>` : ''}
+                        ${type === 'platform' ? `<h4 class="font-semibold text-sky-700 mb-1 text-base">Python Integration:</h4><p class="text-sm text-slate-600 leading-relaxed">${item.pythonIntegration}</p>` : ''}
+                    </div>
+                `;
+                
+                const detailsToggleButton = cellName.querySelector('.details-toggle-btn');
+                if (detailsToggleButton) {
+                    detailsToggleButton.addEventListener('click', (e) => {
+                        e.stopPropagation(); 
+                        row.classList.toggle('expanded');
+                        detailsRow.style.display = detailsRow.style.display === 'table-row' ? 'none' : 'table-row';
+                        if (detailsRow.style.display === 'table-row') {
+                            row.classList.add('bg-slate-50'); 
+                        } else {
+                            row.classList.remove('bg-slate-50');
+                        }
+                    });
+                }
+
+                row.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'A' || e.target.closest('a') || e.target.closest('.details-toggle-btn')) {
+                        return;
+                    }
+                    row.classList.toggle('expanded');
+                    detailsRow.style.display = detailsRow.style.display === 'table-row' ? 'none' : 'table-row';
+                    if (detailsRow.style.display === 'table-row') {
+                        row.classList.add('bg-slate-50');
+                    } else {
+                        row.classList.remove('bg-slate-50');
+                    }
+                });
+            });
+        }
+        
+        populateTable(librariesTableBody, libraryData, 'library');
+        populateTable(platformsTableBody, platformData, 'platform');
+
+        function filterTable(tableBody, searchTerm, categoryFilter, type) {
+            const rows = tableBody.querySelectorAll(`.${type}-row`);
+            searchTerm = searchTerm.toLowerCase();
+            rows.forEach(row => {
+                const nextRow = row.nextElementSibling; 
+                const nameCell = row.cells[0];
+                const nameLink = nameCell.querySelector('a'); // Link is now inside a div
+                const name = nameLink ? nameLink.textContent.toLowerCase() : nameCell.querySelector('span:not(.details-toggle-btn):not(.details-icon)').textContent.toLowerCase();
+                
+                const categorySlug = row.classList.contains('vector') ? 'vector' :
+                                     row.classList.contains('raster') ? 'raster' :
+                                     row.classList.contains('ml-geoai') ? 'ml-geoai' :
+                                     row.classList.contains('remote-sensing') ? 'remote-sensing' :
+                                     row.classList.contains('major-satellite') ? 'major-satellite' :
+                                     row.classList.contains('specialized-thematic') ? 'specialized-thematic' : '';
+
+                const textContent = Array.from(row.cells).slice(1).map(cell => cell.textContent.toLowerCase()).join(' ');
+                const matchesSearch = name.includes(searchTerm) || textContent.includes(searchTerm);
+                const matchesCategory = categoryFilter === 'all' || categorySlug === categoryFilter;
+                
+                if (matchesSearch && matchesCategory) {
+                    row.style.display = ''; // Or 'table-row'
+                    if (row.classList.contains('expanded')) {
+                         nextRow.style.display = 'table-row';
+                    } else {
+                        nextRow.style.display = 'none';
+                    }
+                } else {
+                    row.style.display = 'none';
+                    nextRow.style.display = 'none';
+                }
+            });
+        }
+        
+        let currentLibraryFilter = 'all';
+        let currentPlatformFilter = 'all';
+
+        librarySearchInput.addEventListener('input', (e) => {
+            filterTable(librariesTableBody, e.target.value, currentLibraryFilter, 'library');
+        });
+        
+        platformSearchInput.addEventListener('input', (e) => {
+            filterTable(platformsTableBody, e.target.value, currentPlatformFilter, 'platform');
+        });
+
+        librariesSubNav.addEventListener('click', (e) => {
+            if (e.target.classList.contains('sub-nav-link')) {
+                librariesSubNav.querySelectorAll('.sub-nav-link').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                currentLibraryFilter = e.target.dataset.filter;
+                filterTable(librariesTableBody, librarySearchInput.value, currentLibraryFilter, 'library');
+            }
+        });
+
+        platformsSubNav.addEventListener('click', (e) => {
+            if (e.target.classList.contains('sub-nav-link')) {
+                platformsSubNav.querySelectorAll('.sub-nav-link').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                currentPlatformFilter = e.target.dataset.filter;
+                filterTable(platformsTableBody, platformSearchInput.value, currentPlatformFilter, 'platform');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                navLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+                const targetId = this.dataset.target;
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === targetId) {
+                        section.classList.add('active');
+                    }
+                });
+                document.querySelector('main').scrollTop = 0;
+            });
+        });
+
+        const expandableTriggers = document.querySelectorAll('.expandable-trigger');
+        expandableTriggers.forEach(trigger => {
+            trigger.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                content.style.display = content.style.display === 'block' ? 'none' : 'block';
+                this.textContent = content.style.display === 'block' ? 'Hide Details \u00AB' : 'Show Details \u00BB';
+            });
+        });
+
+        const libraryCategories = libraryData.reduce((acc, lib) => {
+            acc[lib.category] = (acc[lib.category] || 0) + 1;
+            return acc;
+        }, {});
+
+        const ctxLibraries = document.getElementById('librariesChart').getContext('2d');
+        new Chart(ctxLibraries, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(libraryCategories),
+                datasets: [{
+                    label: '# of Libraries',
+                    data: Object.values(libraryCategories),
+                    backgroundColor: [
+                        'rgba(14, 165, 233, 0.6)', 
+                        'rgba(56, 189, 248, 0.6)', 
+                        'rgba(125, 211, 252, 0.6)',
+                        'rgba(165, 180, 252, 0.6)' 
+                    ],
+                    borderColor: [
+                        'rgba(3, 105, 161, 1)',  
+                        'rgba(14, 116, 144, 1)', 
+                        'rgba(6, 182, 212, 1)',  
+                        'rgba(99, 102, 241, 1)'  
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 4, 
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            color: '#64748b' 
+                        },
+                        grid: {
+                            color: '#e2e8f0' 
+                        }
+                    },
+                    x: {
+                        ticks: {
+                             callback: function(value) {
+                                const label = this.getLabelForValue(value);
+                                if (label.length > 16) { 
+                                    return label.substring(0,16) + '...';
+                                }
+                                return label;
+                            },
+                            color: '#64748b' 
+                        },
+                        grid: {
+                            display: false 
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#1e293b', 
+                        titleColor: '#f1f5f9', 
+                        bodyColor: '#cbd5e1', 
+                        borderColor: '#0ea5e9', 
+                        borderWidth: 1,
+                        padding: 10,
+                        cornerRadius: 4
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

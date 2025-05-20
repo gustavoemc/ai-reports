@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoAI Python Ecosystem: Trends & Technological Landscape</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Visualization & Content Choices:
+        - Ecosystem Landscape (Library Categories): Donut Chart (Chart.js) - Goal: Compare composition of library types. NO SVG.
+        - Key Methodologies (DL Adoption): Line Chart (Chart.js) - Goal: Show conceptual trend/change. NO SVG.
+        - Platforms & Tools (Key Libraries): HTML list - Goal: Compare conceptual importance. NO SVG.
+        - Process Flows (e.g., Data Acquisition): HTML/CSS/Tailwind - Goal: Organize/Show process. NO SVG/Mermaid.
+        - Big Stats (e.g., Python Dominance): Large Text - Goal: Inform.
+        - All charts use Chart.js on Canvas. Diagrams use HTML/CSS. Inline links added for key terms. Legend alignment improved. Font sizes increased. Footer updated.
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F4F8; /* Light Background */
+            color: #212936; /* Dark Text */
+            font-size: 1.1em; /* Base font size increase */
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        .section-title {
+            color: #0A2342; /* Deep Ocean Blue */
+            font-size: 2.75rem; /* Increased */
+        }
+        .card {
+            background-color: #FFFFFF; /* White */
+            border-radius: 0.75rem; 
+            box-shadow: 0 10px 20px -5px rgba(10, 35, 66, 0.12), 0 4px 8px -4px rgba(10, 35, 66, 0.08); /* Enhanced shadow */
+            padding: 2.25rem; /* Increased padding */
+            margin-bottom: 2.25rem; /* Increased margin */
+        }
+        .stat-number {
+            color: #FF5733; /* Vibrant Coral */
+            font-weight: 800; 
+            font-size: 5rem; /* Increased */
+        }
+        .highlight-text { 
+            color: #0D3B66; /* Slightly lighter Deep Ocean for highlight */
+            font-weight: 600;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 520px; 
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px; 
+            max-height: 380px; 
+        }
+        @media (min-width: 768px) { 
+            .chart-container {
+                height: 360px;
+                max-height: 430px;
+            }
+        }
+        .flow-step {
+            background-color: #E0E7FF; 
+            border-left: 4px solid #0A2342; 
+            color: #1E293B; 
+            padding: 1rem 1.25rem; /* Adjusted padding */
+            font-size: 1.05rem; /* Increased font size in flow steps */
+        }
+        .flow-arrow {
+            color: #0A2342; 
+            font-size: 2rem; /* Increased */
+        }
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: rgba(240, 244, 248, 0.92); 
+            backdrop-filter: blur(10px); 
+            box-shadow: 0 2px 4px rgba(10, 35, 66, 0.06);
+        }
+        .nav-item {
+            color: #212936; 
+            transition: color 0.3s ease, font-weight 0.3s ease;
+            font-weight: 500;
+            font-size: 1rem; /* Increased nav item font */
+        }
+        .nav-item:hover, .nav-item.active {
+            color: #FF5733; 
+            font-weight: 700; 
+        }
+        .inline-link {
+            color: #0A2342; 
+            text-decoration: underline;
+            text-decoration-color: #FF8C69; 
+            text-underline-offset: 3px; 
+            transition: color 0.2s ease, text-decoration-color 0.2s ease;
+        }
+        .inline-link:hover {
+            color: #FF5733; 
+            text-decoration-color: #FF5733; 
+        }
+        .main-header { color: #0A2342; font-size: 3.5rem; } /* Deep Ocean & Increased */
+        .sub-header { font-size: 2rem; color: #0D3B66;} /* Increased & Adjusted color */
+        .card-title { color: #0A2342; font-size: 1.65rem; } /* Increased */
+        .card-text { font-size: 1.1rem; line-height: 1.7; } /* Increased */
+        .list-item-text { font-size: 1.05rem; } /* Increased */
+        .footer-custom {
+            padding-top: 1.5rem; 
+            margin-top: 1.5rem; 
+            border-top-width: 1px; 
+            border-color: #CBD5E1; 
+            font-size: 0.875rem; 
+            color: #4B5563; 
+            text-align: center;
+            line-height: 1.5; /* Adjusted line-height for tighter packing */
+        }
+        .footer-custom p {
+            margin-bottom: 0; /* Removed space between paragraph lines */
+        }
+        .footer-custom a {
+            color: #0077B5 !important; 
+            text-decoration: none !important;
+        }
+        .footer-custom a:hover {
+            text-decoration: underline !important;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav id="stickyNav" class="sticky-nav shadow-sm hidden md:block">
+        <div class="container mx-auto px-6 py-4">
+            <ul class="flex space-x-10 justify-center">
+                <li><a href="#intro" class="nav-item active">Introduction</a></li>
+                <li><a href="#ecosystem" class="nav-item">Ecosystem</a></li>
+                <li><a href="#trends" class="nav-item">Key Trends</a></li>
+                <li><a href="#platforms" class="nav-item">Platforms & Tools</a></li>
+                <li><a href="#adoption" class="nav-item">Adoption</a></li>
+                <li><a href="#future" class="nav-item">Future Outlook</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <section id="intro" class="text-center pt-10 mb-16">
+            <h1 class="main-header font-bold mb-4">The GeoAI Python Ecosystem</h1>
+            <h2 class="sub-header font-semibold section-title mb-8">Industry Trends & Technological Landscape</h2>
+            <p class="text-xl md:text-2xl text-gray-700 max-w-4xl mx-auto leading-relaxed">
+                Dive into the dynamic world of Geospatial Artificial Intelligence (GeoAI) powered by <a href="https://www.python.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Python</a>. This infographic explores the key libraries, methodologies, data platforms, and emerging trends shaping this rapidly evolving technological landscape. Discover how automation and advanced <a href="https://en.wikipedia.org/wiki/Artificial_intelligence" target="_blank" rel="noopener noreferrer" class="inline-link">AI</a> are transforming geospatial workflows.
+            </p>
+        </section>
+
+        <section id="ecosystem" class="mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold section-title mb-10 text-center">Ecosystem Landscape</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                <div class="card">
+                    <h3 class="card-title font-semibold mb-4 text-center">Key Python Library Categories</h3>
+                    <p class="card-text text-gray-600 mb-6 text-center">The GeoAI <a href="https://www.python.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Python</a> ecosystem is rich with specialized libraries. This chart shows the distribution of core libraries crucial for GeoAI development, based on an analysis of essential tools.</p>
+                    <div class="chart-container">
+                        <canvas id="libraryCategoriesChart"></canvas>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-4 text-center">Illustrative distribution based on key library counts per category.</p>
+                </div>
+                <div class="card text-center">
+                    <h3 class="card-title font-semibold mb-4">Python's Dominance in GeoAI</h3>
+                    <p class="stat-number mb-3">90%+</p>
+                    <p class="text-xl text-gray-700 mb-6">Of GeoAI development and data science workflows leverage <a href="https://www.python.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Python</a> for its versatility and extensive libraries.</p>
+                    <p class="highlight-text text-2xl mb-4">"Python is the de facto language for geospatial analysis and AI integration."</p>
+                    <p class="card-text text-gray-600 mt-4">This reflects Python's mature ecosystem, offering tools from foundational data handling to advanced <a href="https://en.wikipedia.org/wiki/Deep_learning" target="_blank" rel="noopener noreferrer" class="inline-link">deep learning</a> applications specifically tailored for geospatial data.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="trends" class="mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold section-title mb-10 text-center">Key Industry Trends</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div class="card">
+                    <h3 class="card-title font-semibold mb-4">Trend 1: Automation of Data Pipelines</h3>
+                    <p class="card-text text-gray-700 mb-6 leading-relaxed">Automated data acquisition and preprocessing are becoming standard, critical for handling vast geospatial data volumes. APIs and <a href="https://stacspec.org/" target="_blank" rel="noopener noreferrer" class="inline-link">STAC</a>-compliant catalogs are central to this trend.</p>
+                    <div class="space-y-4">
+                        <div class="flow-step p-4 rounded-md"><strong>1. Data Discovery:</strong> Programmatic queries to STAC APIs (<span class="font-mono text-sm highlight-text"><a href="https://pystac-client.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">pystac-client</a></span>).</div>
+                        <div class="text-center flow-arrow text-2xl">&#11107;</div>
+                        <div class="flow-step p-4 rounded-md"><strong>2. Acquisition:</strong> Automated downloads (<span class="font-mono text-sm highlight-text"><a href="https://sentinelsat.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">sentinelsat</a></span>, <a href="https://developers.google.com/earth-engine/guides/python_install" target="_blank" rel="noopener noreferrer" class="inline-link">GEE API</a>).</div>
+                        <div class="text-center flow-arrow text-2xl">&#11107;</div>
+                        <div class="flow-step p-4 rounded-md"><strong>3. Preprocessing:</strong> Cloud masking (<span class="font-mono text-sm highlight-text"><a href="https://github.com/sentinel-hub/sentinel2-cloud-detector" target="_blank" rel="noopener noreferrer" class="inline-link">s2cloudless</a></span>), mosaicking (<span class="font-mono text-sm highlight-text"><a href="https://rasterio.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Rasterio</a></span>), tiling.</div>
+                    </div>
+                     <p class="text-sm text-gray-500 mt-4">This streamlined process, often leveraging <a href="https://www.usgs.gov/core-science-systems/nli/landsat/us-landsat-analysis-ready-data" target="_blank" rel="noopener noreferrer" class="inline-link">Analysis-Ready Data (ARD)</a> and <a href="https://www.cogeo.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Cloud Optimized GeoTIFFs (COGs)</a>, significantly accelerates project timelines.</p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title font-semibold mb-4">Trend 2: Rise of Deep Learning in GeoAI</h3>
+                    <p class="card-text text-gray-700 mb-6 leading-relaxed"><a href="https://en.wikipedia.org/wiki/Deep_learning" target="_blank" rel="noopener noreferrer" class="inline-link">Deep learning</a> techniques are increasingly adopted for complex pattern extraction from geospatial imagery, outperforming traditional methods in many cases.</p>
+                    <div class="chart-container h-72 md:h-80">
+                        <canvas id="dlAdoptionChart"></canvas>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-4 text-center">Conceptual trend showing increased adoption and research focus on DL models like <a href="https://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/" target="_blank" rel="noopener noreferrer" class="inline-link">U-Net</a> and <a href="https://en.wikipedia.org/wiki/Convolutional_neural_network" target="_blank" rel="noopener noreferrer" class="inline-link">CNNs</a> for tasks such as semantic segmentation and object detection.</p>
+                </div>
+                <div class="card md:col-span-2">
+                    <h3 class="card-title font-semibold mb-4">Trend 3: Sophisticated Feature Engineering</h3>
+                    <p class="card-text text-gray-700 mb-8 leading-relaxed">Creating informative features from spatial data is crucial for <a href="https://en.wikipedia.org/wiki/Machine_learning" target="_blank" rel="noopener noreferrer" class="inline-link">ML</a> model performance. Techniques vary for vector and raster data, leveraging spatial relationships and characteristics.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-xl font-semibold mb-3" style="color: #0A2342;">Vector Features</h4>
+                            <ul class="list-disc list-inside text-gray-600 space-y-2 list-item-text">
+                                <li>Proximity & Density Analysis (<span class="font-mono text-sm highlight-text"><a href="https://geopandas.org/" target="_blank" rel="noopener noreferrer" class="inline-link">GeoPandas</a></span>, <span class="font-mono text-sm highlight-text"><a href="https://shapely.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Shapely</a></span>)</li>
+                                <li>Network-based Metrics (<span class="font-mono text-sm highlight-text"><a href="https://osmnx.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">OSMnx</a></span>)</li>
+                                <li>Spatial Lag & Neighborhood Stats (<span class="font-mono text-sm highlight-text"><a href="https://pysal.org/" target="_blank" rel="noopener noreferrer" class="inline-link">PySAL</a></span>)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-semibold mb-3" style="color: #0A2342;">Raster Features</h4>
+                            <ul class="list-disc list-inside text-gray-600 space-y-2 list-item-text">
+                                <li>Spectral Indices (NDVI, EVI using <span class="font-mono text-sm highlight-text"><a href="https://rasterio.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Rasterio</a></span>, <span class="font-mono text-sm highlight-text"><a href="https://spyndex.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">spyndex</a></span>)</li>
+                                <li>Texture Analysis (<span class="font-mono text-sm highlight-text"><a href="https://scikit-image.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Scikit-image</a></span>)</li>
+                                <li>Topographic Variables (<span class="font-mono text-sm highlight-text"><a href="https://xarray-spatial.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">xarray-spatial</a></span>)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-6">This allows domain knowledge to be explicitly encoded, boosting model accuracy and interpretability.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="platforms" class="mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold section-title mb-10 text-center">Platforms & Tools Shaping the Landscape</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card">
+                    <h3 class="card-title font-semibold mb-4">Major Satellite Data Platforms</h3>
+                     <p class="card-text text-gray-600 mb-6">Providers offering vast archives of Earth observation data, increasingly via <a href="https://stacspec.org/" target="_blank" rel="noopener noreferrer" class="inline-link">STAC</a> APIs and cloud-native formats.</p>
+                    <ul class="space-y-3 list-item-text">
+                        <li class="flex items-center"><span class="text-2xl mr-3" style="color:#FF5733;">🛰️</span> <a href="https://www.usgs.gov/core-science-systems/nli/eros" target="_blank" rel="noopener noreferrer" class="inline-link">USGS EROS Center (Landsat)</a></li>
+                        <li class="flex items-center"><span class="text-2xl mr-3" style="color:#0A2342;">🛰️</span> <a href="https://dataspace.copernicus.eu/" target="_blank" rel="noopener noreferrer" class="inline-link">Copernicus Data Space (Sentinel)</a></li>
+                        <li class="flex items-center"><span class="text-2xl mr-3" style="color:#FF5733;">🛰️</span> <a href="https://planetarycomputer.microsoft.com/" target="_blank" rel="noopener noreferrer" class="inline-link">Microsoft Planetary Computer</a></li>
+                        <li class="flex items-center"><span class="text-2xl mr-3" style="color:#0A2342;">🛰️</span> <a href="https://earthengine.google.com/" target="_blank" rel="noopener noreferrer" class="inline-link">Google Earth Engine</a></li>
+                        <li class="flex items-center"><span class="text-2xl mr-3" style="color:#FF5733;">🛰️</span> <a href="https://registry.opendata.aws/" target="_blank" rel="noopener noreferrer" class="inline-link">AWS Open Data</a></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 class="card-title font-semibold mb-4">Key Python Libraries Driving GeoAI</h3>
+                    <p class="card-text text-gray-600 mb-6">A selection of highly impactful <a href="https://opensource.org/" target="_blank" rel="noopener noreferrer" class="inline-link">open-source</a> libraries forming the backbone of GeoAI development.</p>
+                    <ul class="space-y-3 list-item-text">
+                        <li class="font-semibold highlight-text"><a href="https://geopandas.org/" target="_blank" rel="noopener noreferrer" class="inline-link">GeoPandas</a> & <a href="https://shapely.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Shapely</a>: Vector data powerhouses.</li>
+                        <li class="font-semibold" style="color:#0A2342;"><a href="https://rasterio.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Rasterio</a> & <a href="https://xarray.dev/" target="_blank" rel="noopener noreferrer" class="inline-link">Xarray</a>: For advanced raster processing.</li>
+                        <li class="font-semibold" style="color:#FF5733;"><a href="https://scikit-learn.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Scikit-learn</a>: Foundational ML algorithms.</li>
+                        <li class="font-semibold" style="color:#0A2342;"><a href="https://www.tensorflow.org/" target="_blank" rel="noopener noreferrer" class="inline-link">TensorFlow</a> & <a href="https://pytorch.org/" target="_blank" rel="noopener noreferrer" class="inline-link">PyTorch</a>: Deep learning frameworks.</li>
+                        <li class="font-semibold" style="color:#FF5733;"><a href="https://pystac-client.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">`pystac-client`</a>: Standardized data discovery.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 class="card-title font-semibold mb-4">Specialized & Thematic Platforms</h3>
+                    <p class="card-text text-gray-600 mb-6">Platforms offering curated training data, high-resolution topography, biodiversity records, and more.</p>
+                    <ul class="space-y-3 list-item-text">
+                        <li class="flex items-center"><span class="text-xl mr-3">💡</span> <a href="https://mlhub.earth/" target="_blank" rel="noopener noreferrer" class="inline-link">Radiant MLHub (AI Training Data)</a></li>
+                        <li class="flex items-center"><span class="text-xl mr-3">🏔️</span> <a href="https://opentopography.org/" target="_blank" rel="noopener noreferrer" class="inline-link">OpenTopography (DEMs, LiDAR)</a></li>
+                        <li class="flex items-center"><span class="text-xl mr-3">🌿</span> <a href="https://www.gbif.org/" target="_blank" rel="noopener noreferrer" class="inline-link">GBIF (Biodiversity Data)</a></li>
+                        <li class="flex items-center"><span class="text-xl mr-3">🗺️</span> <a href="https://www.openstreetmap.org/" target="_blank" rel="noopener noreferrer" class="inline-link">OpenStreetMap (Vector Base Layers)</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="adoption" class="mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold section-title mb-10 text-center">Developer Adoption & Community</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div class="card text-center">
+                    <h3 class="card-title font-semibold mb-4">Python: The GeoAI Lingua Franca</h3>
+                    <p class="card-text text-gray-700 mb-3"><a href="https://www.python.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Python's</a> extensive libraries, ease of use, and strong community support make it the dominant language for GeoAI development.</p>
+                    <div class="text-6xl stat-number my-6">#1</div>
+                    <p class="text-xl text-gray-700">Choice for <a href="https://www.esri.com/en-us/what-is-gis/overview" target="_blank" rel="noopener noreferrer" class="inline-link">GIS</a>, Data Science, and AI applications involving geospatial data.</p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title font-semibold mb-4">Impact of Open Source</h3>
+                    <p class="card-text text-gray-700 leading-relaxed">The GeoAI field is heavily driven by <a href="https://opensource.org/" target="_blank" rel="noopener noreferrer" class="inline-link">open-source software</a>. Libraries like <a href="https://geopandas.org/" target="_blank" rel="noopener noreferrer" class="inline-link">GeoPandas</a>, <a href="https://rasterio.readthedocs.io/" target="_blank" rel="noopener noreferrer" class="inline-link">Rasterio</a>, <a href="https://pysal.org/" target="_blank" rel="noopener noreferrer" class="inline-link">PySAL</a>, and ML frameworks like <a href="https://scikit-learn.org/" target="_blank" rel="noopener noreferrer" class="inline-link">Scikit-learn</a>, <a href="https://www.tensorflow.org/" target="_blank" rel="noopener noreferrer" class="inline-link">TensorFlow</a>, and <a href="https://pytorch.org/" target="_blank" rel="noopener noreferrer" class="inline-link">PyTorch</a> are community-developed and freely available.</p>
+                    <p class="mt-4 highlight-text text-lg">This fosters innovation, collaboration, and accessibility, lowering barriers to entry for researchers and developers worldwide.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="future" class="mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold section-title mb-10 text-center">Future Outlook: What's Next?</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="card text-center">
+                    <div class="text-5xl mb-4">🔮</div>
+                    <h3 class="text-xl font-semibold mb-3" style="color: #0A2342;">Foundation Models</h3>
+                    <p class="card-text text-sm text-gray-600">Large, pre-trained models (e.g., <a href="https://segment-anything.com/" target="_blank" rel="noopener noreferrer" class="inline-link">SAM</a>) for general geospatial tasks, requiring less fine-tuning.</p>
+                </div>
+                <div class="card text-center">
+                    <div class="text-5xl mb-4">🧩</div>
+                    <h3 class="text-xl font-semibold mb-3" style="color: #FF5733;">Explainable AI (XAI)</h3>
+                    <p class="card-text text-sm text-gray-600">Increasing demand for understanding model predictions, crucial for trust and adoption in critical applications.</p>
+                </div>
+                <div class="card text-center">
+                    <div class="text-5xl mb-4">🛡️</div>
+                    <h3 class="text-xl font-semibold mb-3" style="color: #0A2342;">Ethical GeoAI</h3>
+                    <p class="card-text text-sm text-gray-600">Growing focus on fairness, bias mitigation, privacy, and societal impacts of GeoAI technologies.</p>
+                </div>
+                <div class="card text-center">
+                    <div class="text-5xl mb-4">🖱️</div>
+                    <h3 class="text-xl font-semibold mb-3" style="color: #FF5733;">Low-Code/No-Code</h3>
+                    <p class="card-text text-sm text-gray-600">Platforms abstracting coding complexity, enabling wider access to GeoAI capabilities via intuitive interfaces.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer-custom">
+            <p>GeoAI Python Ecosystem Infographic</p>
+            <p>&copy; 2025 GeoAI Insights</p>
+            <p>GeoAI Python Resources v1.1</p>
+            <p>Deep Research | Gemini Pro | May 2025</p>
+            <p>by <a href="https://www.linkedin.com/in/gustavoernestom/" target="_blank" rel="noopener noreferrer">Gustavo Ernesto Martínez Cárdenas</a></p>
+        </footer>
+
+    </div>
+
+    <script>
+        // Chart.js - Library Categories Donut Chart
+        const libraryCtx = document.getElementById('libraryCategoriesChart').getContext('2d');
+        const libraryCategoriesChart = new Chart(libraryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Vector Data', 'Raster Data', ['ML/GeoAI', 'Integration'], ['Remote Sensing', 'Access']],
+                datasets: [{
+                    label: 'Key Library Distribution',
+                    data: [5, 6, 7, 5], 
+                    backgroundColor: [
+                        '#0A2342', // Deep Ocean
+                        '#FF5733', // Vibrant Coral
+                        '#2E86C1', // Medium Blue (complementary)
+                        '#F39C12', // Orange (complementary to coral)
+                    ],
+                    borderColor: '#FFFFFF', 
+                    borderWidth: 4 
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 13.5 }, 
+                            color: '#212936', 
+                            padding: 22,      
+                            boxWidth: 18,     // Adjusted for better square look with font size
+                            boxHeight: 18,    // Adjusted for better square look
+                            usePointStyle: false, 
+                            textAlign: 'left', 
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map(function(label, i) {
+                                        const meta = chart.getDatasetMeta(0);
+                                        const style = meta.controller.getStyle(i);
+                                        let text = label;
+
+                                        if (Array.isArray(label)) { 
+                                            text = label; 
+                                        } else { 
+                                            const labelString = String(label); 
+                                            if (labelString.length > 18) { 
+                                                const words = labelString.split(' ');
+                                                let currentLine = '';
+                                                const lines = [];
+                                                words.forEach(word => {
+                                                    if ((currentLine + word).length > 18 && currentLine.length > 0) {
+                                                        lines.push(currentLine.trim());
+                                                        currentLine = '';
+                                                    }
+                                                    currentLine += word + ' ';
+                                                });
+                                                lines.push(currentLine.trim());
+                                                text = lines; 
+                                            } else {
+                                                text = labelString; 
+                                            }
+                                        }
+                                        return {
+                                            text: text, 
+                                            fillStyle: style.backgroundColor,
+                                            strokeStyle: style.borderColor,
+                                            lineWidth: style.borderWidth,
+                                            hidden: !chart.getDataVisibility(i),
+                                            index: i,
+                                            fontColor: '#212936' 
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#0A2342', 
+                        titleColor: '#FFFFFF',
+                        bodyColor: '#F0F4F8', 
+                        borderColor: '#FF5733', 
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 4,
+                        titleFont: { size: 16 }, 
+                        bodyFont: { size: 14 }, 
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += context.parsed;
+                                }
+                                return label;
+                            },
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) {
+                                  return label.join(' ');
+                                } else {
+                                  return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart.js - DL Adoption Line Chart
+        const dlCtx = document.getElementById('dlAdoptionChart').getContext('2d');
+        const dlAdoptionChart = new Chart(dlCtx, {
+            type: 'line',
+            data: {
+                labels: ['2020', '2021', '2022', '2023', '2024', ['2025', '(Proj.)']], 
+                datasets: [{
+                    label: 'Deep Learning Adoption in GeoAI (Conceptual)',
+                    data: [20, 35, 50, 65, 75, 85], 
+                    borderColor: '#FF5733', 
+                    backgroundColor: 'rgba(255, 87, 51, 0.15)', 
+                    tension: 0.3,
+                    fill: true,
+                    borderWidth: 3, 
+                    pointBackgroundColor: '#FF5733', 
+                    pointBorderColor: '#FFFFFF',
+                    pointRadius: 6, 
+                    pointHoverRadius: 8, 
+                    pointHoverBackgroundColor: '#FFFFFF',
+                    pointHoverBorderColor: '#FF5733' 
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: { display: true, text: 'Adoption Index / Focus %', color: '#212936', font: {size: 16} }, 
+                        ticks: { color: '#212936', font: {size: 14} }, 
+                        grid: { color: '#CBD5E0' } 
+                    },
+                    x: {
+                        title: { display: true, text: 'Year', color: '#212936', font: {size: 16} }, 
+                        ticks: { color: '#212936', font: {size: 14} }, 
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#0A2342', 
+                        titleColor: '#FFFFFF',
+                        bodyColor: '#F0F4F8', 
+                        borderColor: '#FF5733', 
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 4,
+                        titleFont: { size: 16 }, 
+                        bodyFont: { size: 14 }, 
+                         callbacks: {
+                            title: function(tooltipItems) { 
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) { return label.join(' '); }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const nav = document.getElementById('stickyNav');
+        if (nav) { 
+            const navItems = nav.querySelectorAll('.nav-item');
+            const sections = document.querySelectorAll('section[id]');
+            let activeNavItem = nav.querySelector('.nav-item.active');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= (sectionTop - nav.offsetHeight - 60)) { 
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                if (activeNavItem && activeNavItem.getAttribute('href').substring(1) !== current) {
+                    activeNavItem.classList.remove('active');
+                    activeNavItem = null;
+                }
+
+                navItems.forEach(item => {
+                    if (item.getAttribute('href').substring(1) === current && !activeNavItem) {
+                        item.classList.add('active');
+                        activeNavItem = item;
+                    }
+                });
+                if (!current && !activeNavItem && window.pageYOffset < sections[0].offsetTop) { 
+                    const introItem = nav.querySelector('a[href="#intro"]');
+                    if (introItem) { 
+                        introItem.classList.add('active');
+                        activeNavItem = introItem;
+                    }
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

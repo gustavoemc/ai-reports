@@ -1,0 +1,108 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #F0F4F8;
+    color: #212936;
+    font-size: 1.1em;
+}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+.section-title {
+    color: #0A2342;
+    font-size: 2.75rem;
+}
+.card {
+    background-color: #FFFFFF;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 20px -5px rgba(10, 35, 66, 0.12), 0 4px 8px -4px rgba(10, 35, 66, 0.08);
+    padding: 2.25rem;
+    margin-bottom: 2.25rem;
+}
+.stat-number {
+    color: #FF5733;
+    font-weight: 800;
+    font-size: 5rem;
+}
+.highlight-text {
+    color: #0D3B66;
+    font-weight: 600;
+}
+.chart-container {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+    height: 320px;
+    max-height: 380px;
+}
+@media (min-width: 768px) {
+    .chart-container {
+        height: 360px;
+        max-height: 430px;
+    }
+}
+.flow-step {
+    background-color: #E0E7FF;
+    border-left: 4px solid #0A2342;
+    color: #1E293B;
+    padding: 1rem 1.25rem;
+    font-size: 1.05rem;
+}
+.flow-arrow {
+    color: #0A2342;
+    font-size: 2rem;
+}
+.sticky-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: rgba(240, 244, 248, 0.92);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 4px rgba(10, 35, 66, 0.06);
+}
+.nav-item {
+    color: #212936;
+    transition: color 0.3s ease, font-weight 0.3s ease;
+    font-weight: 500;
+    font-size: 1rem;
+}
+.nav-item:hover, .nav-item.active {
+    color: #FF5733;
+    font-weight: 700;
+}
+.inline-link {
+    color: #0A2342;
+    text-decoration: underline;
+    text-decoration-color: #FF8C69;
+    text-underline-offset: 3px;
+    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+.inline-link:hover {
+    color: #FF5733;
+    text-decoration-color: #FF5733;
+}
+.main-header { color: #0A2342; font-size: 3.5rem; }
+.sub-header { font-size: 2rem; color: #0D3B66;}
+.card-title { color: #0A2342; font-size: 1.65rem; }
+.card-text { font-size: 1.1rem; line-height: 1.7; }
+.list-item-text { font-size: 1.05rem; }
+.footer-custom {
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+    border-top-width: 1px;
+    border-color: #CBD5E1;
+    font-size: 0.875rem;
+    color: #4B5563;
+    text-align: center;
+    line-height: 1.5;
+}
+.footer-custom p {
+    margin-bottom: 0;
+}
+.footer-custom a {
+    color: #0077B5 !important;
+    text-decoration: none !important;
+}
+.footer-custom a:hover {
+    text-decoration: underline !important;
+}
