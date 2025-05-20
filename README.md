@@ -26,6 +26,7 @@ GeoAI, driven by Python, is rapidly evolving. This research is designed to keep 
 - 📄 **Full Interactive Report:** [GeoAI_Python_Resources_v1.0.html](https://gustavoemc.github.io/ai-reports/reports/GeoAI_Python_Resources_v1.0.html)
 - 📊 **Visual Infographic:** [GeoAI_Python_InfoGraphic_v1.0.html](https://gustavoemc.github.io/ai-reports/reports/GeoAI_Python_InfoGraphic_v1.0.html)
 - 🎧 **Audio Overview:** [GeoAI_Python_Resources_v1.0.mp3](https://gustavoemc.github.io/ai-reports/reports/GeoAI_Python_Resources_v1.0.mp3)
+- 🎬 **Video Overview:** [GeoAI_Python_Report_v1.0.mp4](GeoAI_Python_Report_v1.0.mp4)
 
 ---
 
