@@ -4,6 +4,14 @@ Welcome! This repository is your gateway to the essential resources, trends, and
 
 ---
 
+**If your platform supports HTML video, you can view the video below (may not work on GitHub web):**
+
+[▶️ Watch the video (GeoAI_Python_Report_v1.0.mp4)](reports/GeoAI_Python_Report_v1.0.mp4)
+
+_If you see a 404 error or the video does not play, the file may not be available in the published repository or your platform does not support embedded video._
+
+---
+
 ## About This Project
 
 This report series was inspired by the concept of a "vibe-coding" GeoAI assistant—analyzing and curating the core Python libraries, methodologies, and data platforms that power modern geospatial AI workflows. The goal: help professionals and enthusiasts automate complex geospatial tasks (data acquisition, processing, ML/AI integration) with intuitive, high-level tools.
@@ -26,7 +34,13 @@ GeoAI, driven by Python, is rapidly evolving. This research is designed to keep 
 - 📄 **Full Interactive Report:** [GeoAI_Python_Resources_v1.0.html](https://gustavoemc.github.io/ai-reports/reports/GeoAI_Python_Resources_v1.0.html)
 - 📊 **Visual Infographic:** [GeoAI_Python_InfoGraphic_v1.0.html](https://gustavoemc.github.io/ai-reports/reports/GeoAI_Python_InfoGraphic_v1.0.html)
 - 🎧 **Audio Overview:** [GeoAI_Python_Resources_v1.0.mp3](https://gustavoemc.github.io/ai-reports/reports/GeoAI_Python_Resources_v1.0.mp3)
-- 🎬 **Video Overview:** [GeoAI_Python_Report_v1.0.mp4](GeoAI_Python_Report_v1.0.mp4)
+- 🎬 **Video Overview:**
+
+  **If your platform supports HTML video, you can view the video below (may not work on GitHub web):**
+
+  [▶️ Watch the video (GeoAI_Python_Report_v1.0.mp4)](reports/GeoAI_Python_Report_v1.0.mp4)
+
+  _If you see a 404 error or the video does not play, the file may not be available in the published repository or your platform does not support embedded video._
 
 ---
 
