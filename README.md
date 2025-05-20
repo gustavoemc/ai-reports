@@ -4,11 +4,11 @@ Welcome! This repository is your gateway to the essential resources, trends, and
 
 ---
 
-**If your platform supports HTML video, you can view the video below (may not work on GitHub web):**
+**Watch the video overview:**
 
-[▶️ Watch the video (GeoAI_Python_Report_v1.0.mp4)](reports/GeoAI_Python_Report_v1.0.mp4)
+[![GeoAI Python Report v1.0 - YouTube](https://img.youtube.com/vi/lYa8E7eIoKc/hqdefault.jpg)](https://youtu.be/lYa8E7eIoKc)
 
-_If you see a 404 error or the video does not play, the file may not be available in the published repository or your platform does not support embedded video._
+Click the image above or [watch on YouTube](https://youtu.be/lYa8E7eIoKc).
 
 ---
 
