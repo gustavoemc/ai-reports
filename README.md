@@ -6,9 +6,11 @@ Welcome! This repository is your gateway to the essential resources, trends, and
 
 **Watch the video overview:**
 
-[![GeoAI Python Report v1.0 - YouTube](https://img.youtube.com/vi/lYa8E7eIoKc/hqdefault.jpg)](https://youtu.be/lYa8E7eIoKc){:target="_blank"}
+<a href="https://youtu.be/lYa8E7eIoKc" target="_blank" rel="noopener noreferrer">
+  <img src="https://img.youtube.com/vi/lYa8E7eIoKc/hqdefault.jpg" alt="GeoAI Python Report v1.0 - YouTube" style="max-width: 420px; width: 100%; border-radius: 8px; box-shadow: 0 2px 8px #0002; margin-bottom: 0.5em;" />
+</a>
 
-Click the image above or [watch on YouTube](https://youtu.be/lYa8E7eIoKc){:target="_blank"}.
+Click the image above or <a href="https://youtu.be/lYa8E7eIoKc" target="_blank" rel="noopener noreferrer">watch on YouTube</a>.
 
 ---
 
@@ -31,14 +33,16 @@ GeoAI, driven by Python, is rapidly evolving. This research is designed to keep 
 
 ## Access the Reports
 
-- 📄 **Full Interactive Report:** [GeoAI_Python_Resources_v1.0.html](https://gustavoemc.github.io/ai-reports/reports/GeoAI_Python_Resources_v1.0.html){:target="_blank"}
-- 📊 **Visual Infographic:** [GeoAI_Python_InfoGraphic_v1.0.html](https://gustavoemc.github.io/ai-reports/reports/GeoAI_Python_InfoGraphic_v1.0.html){:target="_blank"}
-- 🎧 **Audio Overview:** [GeoAI_Python_Resources_v1.0.mp3](https://gustavoemc.github.io/ai-reports/reports/GeoAI_Python_Resources_v1.0.mp3){:target="_blank"}
+- 📄 **Full Interactive Report:** <a href="https://gustavoemc.github.io/ai-reports/reports/GeoAI_Python_Resources_v1.0.html" target="_blank" rel="noopener noreferrer">GeoAI_Python_Resources_v1.0.html</a>
+- 📊 **Visual Infographic:** <a href="https://gustavoemc.github.io/ai-reports/reports/GeoAI_Python_InfoGraphic_v1.0.html" target="_blank" rel="noopener noreferrer">GeoAI_Python_InfoGraphic_v1.0.html</a>
+- 🎧 **Audio Overview:** <a href="https://gustavoemc.github.io/ai-reports/reports/GeoAI_Python_Resources_v1.0.mp3" target="_blank" rel="noopener noreferrer">GeoAI_Python_Resources_v1.0.mp3</a>
 - 🎬 **Video Overview:**
 
-  [![GeoAI Python Report v1.0 - YouTube](https://img.youtube.com/vi/lYa8E7eIoKc/hqdefault.jpg)](https://youtu.be/lYa8E7eIoKc){:target="_blank"}
+  <a href="https://youtu.be/lYa8E7eIoKc" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.youtube.com/vi/lYa8E7eIoKc/hqdefault.jpg" alt="GeoAI Python Report v1.0 - YouTube" style="max-width: 420px; width: 100%; border-radius: 8px; box-shadow: 0 2px 8px #0002; margin-bottom: 0.5em;" />
+  </a>
 
-  Click the image above or [watch on YouTube](https://youtu.be/lYa8E7eIoKc){:target="_blank"}.
+  Click the image above or <a href="https://youtu.be/lYa8E7eIoKc" target="_blank" rel="noopener noreferrer">watch on YouTube</a>.
 
 ---
 
